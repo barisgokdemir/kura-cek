@@ -16,14 +16,13 @@ export const MODULES = [
   { route: 'sihirli-kure', title: 'Sihirli Küre', icon: 'orb', color: 'var(--teal)', desc: 'Sorunu sor, küreyi salla. Klasik 20 cevap ya da Evet/Hayır/Belki.' },
   { route: 'rastgele-sayi', title: 'Rastgele Sayı', icon: 'hash', color: 'var(--mint)', desc: 'Aralık seç, kaç sayı istediğini yaz. Tekrarsız, sıralı, loto kalıpları.' },
   { route: 'kazi-kazan', title: 'Kazı Kazan', icon: 'ticket', color: 'var(--gold)', desc: 'Ödülleri yaz, kartları oluştur; herkes kendi telefonunda kazısın.' },
+  { route: 'iskambil', title: 'İskambil Kartı', icon: 'cards', color: 'var(--azure)', desc: 'Karıştırılmış desteden kart çek ya da herkes çeksin, yüksek kart kazansın.' },
+  { route: 'nobet-sirasi', title: 'Nöbet Sırası', icon: 'calendar', color: 'var(--coral)', desc: 'Nöbet, temizlik, çay sırası: herkese eşit gün, tarihlere dağıtılmış.' },
+  { route: 'oturma-plani', title: 'Oturma Planı', icon: 'seats', color: 'var(--violet)', desc: 'Sınıf sıraları ya da masalar; yan yana oturmasın dediklerini ayırır.' },
+  { route: 'sayismaca', title: 'Sayışmaca', icon: 'chant', color: 'var(--candy)', desc: 'Portakalı soydum, o piti piti… Tekerleme hece hece sayar, ebe çıkar.' },
 ];
 
-export const SOON = [
-  ['Sayışmaca', 'finger'],
-  ['İskambil Kartı', 'ticket'],
-  ['Nöbet Sırası', 'timer'],
-  ['Oturma Planı', 'team'],
-];
+export const SOON = [];
 
 export const COLORS = Object.fromEntries(MODULES.map((m) => [m.route, m.color]));
 COLORS['evet-hayir'] = 'var(--purple)';

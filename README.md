@@ -19,9 +19,13 @@
 | İsim-Şehir | Türk alfabesi, zor harfleri çıkarma, tekrar etmeme, geri sayım |
 | Hediyeleşme | Kısıtlı eşleşme (kendini/eşini çekmeme); elden ele ya da kişiye özel link |
 | Taş-Kağıt-Makas | Uygulamaya karşı (uygulamanın hamlesi oyuncu seçmeden önce mühürlenir) ya da iki kişi aynı ekranda |
-| Sihirli Küre | Klasik 20 cevap ya da Evet/Hayır/Belki; dokun veya salla |
+| Sihirli Küre | Küre içindeki 3D tamburda cevaplar döner ve önceden seçilene iner; klasik 20 cevap ya da Evet/Hayır/Belki |
 | Rastgele Sayı | Aralık, adet, tekrarsız, sıralı; 1–6, 1–100, loto kalıpları |
 | Kazı Kazan | Ödüller kartlara karıştırılır; her kişi kendi linkini açıp parmağıyla kazır |
+| İskambil Kartı | Mühürlü karıştırılmış deste (isteğe bağlı joker); kart çek ya da herkes çeksin, yüksek kart kazansın |
+| Nöbet Sırası | Her gün / hafta içi / haftalık; herkese eşit nöbet, tarihlere dağıtılmış, yazdırılabilir |
+| Oturma Planı | Sınıf sıraları (ikişerli) ya da masalar; yan yana oturmaması gerekenleri ayırır |
+| Sayışmaca | 22 geleneksel tekerleme hece hece sayar; son hece ebe ya da eleme; başlangıç kişisi rastgele ve mühürlü |
 
 Tüm ikonlar SVG; emoji kullanılmaz, her cihazda aynı görünür.
 
@@ -60,8 +64,7 @@ js/pages/*.js     sayfalar
 
 ## Yol haritası
 
-- **Sıradaki:** sayışmaca tekerlemesi, iskambil kartı çekme, nöbet sırası, oturma planı
-- **Sonra:** eleme modu, ağırlık, liste link paylaşımı, sayışmaca tekerlemesi, İngilizce
+- Eleme modu ve ağırlık (Custom Liste), liste link paylaşımı, İngilizce
 
 ## Lisans
 

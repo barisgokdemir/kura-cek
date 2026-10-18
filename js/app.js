@@ -18,6 +18,10 @@ import * as rps from './pages/rps.js';
 import * as orb from './pages/orb.js';
 import * as numbers from './pages/numbers.js';
 import * as scratch from './pages/scratch.js';
+import * as cards from './pages/cards.js';
+import * as duty from './pages/duty.js';
+import * as seating from './pages/seating.js';
+import * as counting from './pages/counting.js';
 import { COLORS } from './modules.js';
 
 // Hash tabanlı yönlendirme: GitHub Pages'te 404 sorunu çıkarmaz.
@@ -37,6 +41,10 @@ const ROUTES = {
   'sihirli-kure': { page: orb, title: 'Sihirli Küre', recent: true },
   'rastgele-sayi': { page: numbers, title: 'Rastgele Sayı', recent: true },
   'kazi-kazan': { page: scratch, title: 'Kazı Kazan', recent: true },
+  iskambil: { page: cards, title: 'İskambil Kartı', recent: true },
+  'nobet-sirasi': { page: duty, title: 'Nöbet Sırası', recent: true },
+  'oturma-plani': { page: seating, title: 'Oturma Planı', recent: true },
+  sayismaca: { page: counting, title: 'Sayışmaca', recent: true },
   gecmis: { page: history, title: 'Geçmiş' },
   hakkinda: { page: about, title: 'Hakkında' },
   ayarlar: { page: settings, title: 'Ayarlar' },

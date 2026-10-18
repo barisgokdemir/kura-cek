@@ -62,5 +62,9 @@ export const icons = {
   rock: svg(`<path d="M14 40l4-16 12-8 14 3 8 12-2 13-12 8H22z"/><path d="M26 30l6 4M38 28l-2 8" opacity=".6" stroke-width="2"/>`),
   paper: svg(`<path d="M16 8h22l12 12v36H16z"/><path d="M38 8v12h12M22 30h20M22 38h20M22 46h14" stroke-width="2.5"/>`),
   scissors: svg(`<circle cx="18" cy="46" r="7"/><circle cx="46" cy="46" r="7"/><path d="M23 41L44 10M41 41L20 10"/>`),
+  cards: svg(`<rect x="8" y="14" width="26" height="38" rx="4" transform="rotate(-12 21 33)"/><rect x="28" y="10" width="26" height="38" rx="4" transform="rotate(10 41 29)"/><path d="M41 22c-3 4-6 6-6 9a3 3 0 006 1 3 3 0 006-1c0-3-3-5-6-9z" fill="currentColor" stroke="none"/>`),
+  calendar: svg(`<rect x="8" y="12" width="48" height="42" rx="6"/><path d="M8 24h48M20 6v12M44 6v12"/><circle cx="22" cy="36" r="3" fill="currentColor" stroke="none"/><circle cx="32" cy="36" r="3" fill="currentColor" stroke="none"/><circle cx="42" cy="44" r="3" fill="#f472b6" stroke="none"/>`),
+  seats: svg(`<rect x="22" y="22" width="20" height="20" rx="4"/><circle cx="32" cy="11" r="5"/><circle cx="32" cy="53" r="5"/><circle cx="11" cy="32" r="5"/><circle cx="53" cy="32" r="5" fill="#f472b6" stroke="#f472b6"/>`),
+  chant: svg(`<path d="M10 14h44v28H30l-12 10v-10h-8z"/><circle cx="22" cy="28" r="2.6" fill="currentColor" stroke="none"/><circle cx="32" cy="28" r="2.6" fill="currentColor" stroke="none"/><circle cx="42" cy="28" r="2.6" fill="#f472b6" stroke="none"/>`),
   shuffle: svg(`<path d="M8 20h10c10 0 18 24 28 24h10M8 44h10c4 0 7-3 10-8M36 28c3-5 6-8 10-8h10"/><path d="M50 14l6 6-6 6M50 38l6 6-6 6"/>`),
 };

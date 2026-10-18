@@ -98,6 +98,7 @@ export function mount(root) {
           ),
         ),
       ),
+      SOON.length &&
       h(
         'section',
         {},
