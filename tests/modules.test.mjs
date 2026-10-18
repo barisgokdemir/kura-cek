@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { makeCard } from '../js/pages/bingo.js';
+import { makeCard, gridToRows, rowsToGrid } from '../js/pages/bingo.js';
 import { buildTeams, parsePlayer } from '../js/pages/teams.js';
 import { assign, parseExclusions, encodeTicket, decodeTicket } from '../js/pages/gift.js';
 import { tavlaName } from '../js/pages/dice.js';
@@ -72,4 +72,14 @@ test('tavla adları', () => {
   assert.equal(tavlaName(5, 6), 'Şeşbeş');
   assert.equal(tavlaName(1, 1), 'Hep yek');
   assert.equal(tavlaName(3, 4), 'Cihar se');
+});
+
+test('tombala kartı linke satır olarak gider ve aynen geri kurulur', () => {
+  for (let k = 0; k < 200; k++) {
+    const card = makeCard();
+    const rows = gridToRows(card);
+    assert.deepEqual(rows.map((r) => r.length), [5, 5, 5]);
+    assert.deepEqual(rowsToGrid(rows), card);
+    assert.deepEqual(decodeTicket(encodeTicket({ s: 'ab12', k: 1, r: rows })).r, rows);
+  }
 });

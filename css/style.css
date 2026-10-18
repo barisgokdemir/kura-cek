@@ -2229,6 +2229,127 @@ h2.gift-who {
   margin-top: 4px;
 }
 
+/* Tombala: kart linkleri ve oyuncu ekranı */
+.bingo-card-head {
+  align-items: center;
+  gap: 8px;
+}
+.card-actions {
+  display: inline-flex;
+  gap: 6px;
+}
+.card-actions .btn.icon {
+  width: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  height: 36px;
+}
+.card-actions .btn.icon svg {
+  width: 17px;
+  height: 17px;
+}
+@media print {
+  .card-actions {
+    display: none !important;
+  }
+}
+.play-card {
+  margin: 14px auto 0;
+  max-width: 560px;
+  padding: 10px;
+  border-radius: 20px;
+  background: var(--surface);
+  border: 2px solid color-mix(in srgb, var(--mc) 55%, var(--border));
+  box-shadow: 0 20px 60px -30px var(--mc);
+}
+.play-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 4px;
+}
+.play-grid > * {
+  aspect-ratio: 0.82;
+  border-radius: 9px;
+}
+.play-grid .x {
+  background: repeating-linear-gradient(-45deg, transparent 0 4px, var(--border) 4px 6px);
+}
+.play-grid .n {
+  appearance: none;
+  border: 1px solid var(--border-2);
+  background: var(--bg);
+  color: var(--text);
+  font: 800 clamp(0.95rem, 4.6vw, 1.35rem) var(--font-head);
+  font-variant-numeric: tabular-nums;
+  padding: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  position: relative;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+}
+.play-grid .n:active {
+  transform: scale(0.92);
+}
+.play-grid .n.marked {
+  background: var(--mc);
+  border-color: var(--mc);
+  color: var(--on-accent);
+  box-shadow: 0 0 14px -2px var(--mc);
+}
+.play-grid .n.marked::after {
+  content: '';
+  position: absolute;
+  inset: 6%;
+  border-radius: 50%;
+  border: 2px solid rgb(10 10 26 / 22%);
+}
+.row-pills {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.pill {
+  padding: 6px 14px;
+  border-radius: 30px;
+  border: 1px solid var(--border-2);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.pill b {
+  color: var(--text);
+  font-family: var(--font-head);
+}
+.pill.full {
+  border-color: var(--green);
+  color: var(--green);
+  box-shadow: 0 0 14px -4px var(--green);
+}
+.pill.full b {
+  color: var(--green);
+}
+.cinko-banner {
+  margin: 14px auto 4px;
+  max-width: 420px;
+  padding: 14px 18px;
+  border-radius: 18px;
+  text-align: center;
+  font: 900 clamp(1.5rem, 7vw, 2rem) var(--font-head);
+  color: var(--on-accent);
+  background: linear-gradient(135deg, var(--green), var(--cyan));
+  box-shadow: 0 10px 40px -10px var(--green);
+}
+.cinko-banner.show {
+  animation: pop 0.45s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+.cinko-banner.tombala {
+  background: linear-gradient(135deg, var(--amber), var(--pink));
+  box-shadow: 0 10px 50px -8px var(--amber);
+}
+
 /* ---------- Phones: kompakt yatay modül kartları ---------- */
 @media (max-width: 560px) {
   .grid {

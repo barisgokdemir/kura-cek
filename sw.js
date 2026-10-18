@@ -1,6 +1,6 @@
 // Önbellek-öncelikli service worker: uygulama internetsiz çalışır.
 // Bir dosya değiştiğinde VERSION'ı arttır.
-const VERSION = 'kura-cek-v4';
+const VERSION = 'kura-cek-v5';
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 const ASSETS = [
   './',
@@ -16,6 +16,7 @@ const ASSETS = [
   'js/ui.js',
   'js/icons.js',
   'js/modules.js',
+  'js/ticket.js',
   'js/pages/bottle.js',
   'js/pages/bingo.js',
   'js/pages/finger.js',

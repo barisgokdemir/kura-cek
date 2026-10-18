@@ -13,7 +13,7 @@
 | Kısa Çubuk | İsim ya da kişi sayısı, N kısa çubuk, "hepsini birden" ve "elden ele" modları |
 | Custom Liste | Çark, N sonuç (tekrarsız), tümünü sırala; favoriler ve şablonlar |
 | Şişe Çevirme | 3D şişe, isimler masanın çevresinde; şişe önceden seçilen kişiye döner |
-| Tombala | 1–90 torba sırası baştan mühürlenir; sesli okuma, otomatik çekiliş, tahta, yazdırılabilir kartlar |
+| Tombala | 1–90 torba sırası baştan mühürlenir; sesli okuma, otomatik çekiliş, tahta, yazdırılabilir kartlar; her karta link — oyuncu kendi telefonunda işaretler, çinko/tombala otomatik algılanır |
 | Parmak Seçici | Çoklu dokunma; kazanan seç ya da takımlara böl (masaüstünde tıklayarak) |
 | Takım Kurucu | N takım; seviye verilirse yılan sırasıyla dengeli dağıtım |
 | İsim-Şehir | Türk alfabesi, zor harfleri çıkarma, tekrar etmeme, geri sayım |
