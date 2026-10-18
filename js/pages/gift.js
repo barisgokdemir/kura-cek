@@ -262,30 +262,53 @@ function mountTicket(root, payload) {
     root.append(pageHeader('Hediyeleşme', null, 'gift'), h('p', { class: 'center muted' }, 'Bu link bozuk görünüyor. Linki gönderen kişiden yeniden iste.'));
     return;
   }
+  const meta = [t.b && `Bütçe ${t.b}`, t.d].filter(Boolean).join(' · ');
+
+  const open = () => {
+    if (wrap.classList.contains('open')) return;
+    wrap.classList.add('open');
+    card.classList.add('open');
+    cta.hidden = true;
+    after.hidden = false;
+    confetti();
+    sound('win');
+    vibrate([40, 60, 40]);
+  };
+
   const card = h(
     'button',
-    {
-      class: 'gift-ticket',
-      onclick: () => {
-        if (card.classList.contains('open')) return;
-        card.classList.add('open');
-        confetti();
-        sound('win');
-        vibrate([40, 60, 40]);
-      },
-    },
-    h('div', { class: 'face back', html: icons.gift }, h('span', {}, 'Açmak için dokun')),
+    { class: 'gift-ticket', 'aria-label': 'Kartı aç ve kime hediye alacağını gör', onclick: open },
+    h(
+      'div',
+      { class: 'face back' },
+      h('span', { class: 'tap-rings', 'aria-hidden': 'true' }, h('i'), h('i'), h('i')),
+      h('span', { class: 'ticket-gift', html: icons.gift }),
+      h('b', { class: 'ticket-cta' }, 'DOKUN VE AÇ'),
+      h('span', { class: 'ticket-sub' }, 'Kime hediye alacağın bu kartın arkasında'),
+    ),
     h(
       'div',
       { class: 'face front' },
       h('span', { class: 'muted' }, 'Hediye alacağın kişi'),
       h('b', {}, t.r),
-      h('span', { class: 'muted small' }, [t.b && `Bütçe ${t.b}`, t.d].filter(Boolean).join(' · ')),
+      meta && h('span', { class: 'muted small' }, meta),
     ),
   );
-  root.append(
-    pageHeader(t.e || 'Hediyeleşme', `Merhaba ${t.g}!`, 'gift'),
-    card,
-    h('p', { class: 'center muted small' }, 'Kimseye gösterme. Bu link yalnızca sana özel.'),
+  const cta = h('button', { class: 'btn primary big block ticket-btn', onclick: open, html: icons.eye }, 'Kime düştüğümü göster');
+  const after = h(
+    'p',
+    { class: 'note ticket-note', hidden: true, html: `${icons.eyeOff}<span><b>Kimseye gösterme.</b> Bu link yalnızca sana özel; başkasına iletme.</span>` },
   );
+  const wrap = h(
+    'section',
+    { class: 'ticket-page' },
+    h('span', { class: 'eyebrow' }, h('span', { class: 'dot' }), 'Gizli kura sonucu'),
+    h('h1', {}, 'Merhaba ', h('span', {}, t.g), '!'),
+    h('p', { class: 'muted ticket-lead' }, `${t.e || 'Hediyeleşme'} kurası çekildi. Kime hediye alacağını görmek için kartı aç.`),
+    card,
+    cta,
+    after,
+    h('p', { class: 'center muted small ticket-private' }, 'Sonucu yalnızca sen görürsün; ekranına kimse bakmasın.'),
+  );
+  root.append(wrap);
 }

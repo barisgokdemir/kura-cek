@@ -44,7 +44,7 @@ export function pageHeader(title, subtitle, iconName, backHref = '#/') {
   return h(
     'header',
     { class: 'page-head' },
-    h('a', { class: 'back', href: backHref, 'aria-label': 'Geri', html: icons.back }),
+    h('a', { class: 'back-btn', href: backHref, 'aria-label': 'Geri', html: icons.back }),
     h('div', { class: 'grow' }, h('h1', {}, title), subtitle && h('p', { class: 'muted' }, subtitle)),
     iconName && h('span', { class: 'head-icon', html: icons[iconName], 'aria-hidden': 'true' }),
   );

@@ -190,7 +190,7 @@ function mountEditor(root, id) {
     h(
       'header',
       { class: 'page-head' },
-      h('a', { class: 'back', href: '#/liste', 'aria-label': 'Listeler', html: icons.back }),
+      h('a', { class: 'back-btn', href: '#/liste', 'aria-label': 'Listeler', html: icons.back }),
       nameEl,
       favBtn,
     ),
