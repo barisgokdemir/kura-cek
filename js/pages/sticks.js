@@ -3,8 +3,6 @@ import { shuffle, seal } from '../rng.js';
 import * as store from '../store.js';
 import { icons } from '../icons.js';
 
-export const meta = { route: 'kisa-cubuk', title: 'Kısa Çubuk', icon: '🥢' };
-
 export function mount(root) {
   let dead = false;
   const namesEl = h('textarea', {

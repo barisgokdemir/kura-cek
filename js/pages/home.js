@@ -2,22 +2,8 @@ import { h, proofLine, sound, vibrate } from '../ui.js';
 import { randomInt, seal } from '../rng.js';
 import { icons } from '../icons.js';
 import * as store from '../store.js';
+import { MODULES, SOON } from '../modules.js';
 
-export const MODULES = [
-  { route: 'yazi-tura', title: 'Yazı-Tura', icon: 'coin', color: 'var(--amber)', desc: "3D para. Çoklu para, 3'te 2 ve 5'te 3 seri, özel yüz etiketleri." },
-  { route: 'zar', title: 'Zar', icon: 'dice', color: 'var(--cyan)', desc: "d4'ten d20'ye 3D zarlar. Zar tut, kalanları at; tavla modu." },
-  { route: 'kisa-cubuk', title: 'Kısa Çubuk', icon: 'sticks', color: 'var(--pink)', desc: 'Kötü iş kime? Elden ele modunda sonuç sona kadar gizli.' },
-  { route: 'liste', title: 'Custom Liste', icon: 'wheel', color: 'var(--green)', desc: 'Çark çevir, N sonuç seç ya da tüm listeyi karıştır.' },
-];
-
-const SOON = [
-  ['Parmak seçici', 'finger'],
-  ['Takım kurucu', 'team'],
-  ['İsim-Şehir harfi', 'letter'],
-  ['Şişe çevirme', 'bottle'],
-  ['Tombala', 'bingo'],
-  ['Hediyeleşme', 'gift'],
-];
 
 export function mount(root) {
   const s = store.get();

@@ -93,3 +93,9 @@ export async function seal(module, input, result) {
 export async function verify(record) {
   return record.code != null && (await fingerprint(record)) === record.code;
 }
+
+export async function sha256hex(text) {
+  if (!globalThis.crypto?.subtle) return null;
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}

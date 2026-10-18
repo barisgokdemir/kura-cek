@@ -10,8 +10,6 @@ const MODES = [
   { id: 'bo5', label: "5'te 3", need: 3 },
 ];
 
-export const meta = { route: 'yazi-tura', title: 'Yazı-Tura', icon: '🪙' };
-
 export function mount(root) {
   const labels = [...store.get().coin.labels];
   let count = 1;
@@ -32,9 +30,9 @@ export function mount(root) {
   const countCtl = h(
     'div',
     { class: 'stepper' },
-    h('button', { class: 'btn icon', 'aria-label': 'Azalt', onclick: () => setCount(count - 1) }, '−'),
+    h('button', { class: 'btn icon', 'aria-label': 'Azalt', html: icons.minus, onclick: () => setCount(count - 1) }),
     countOut,
-    h('button', { class: 'btn icon', 'aria-label': 'Arttır', onclick: () => setCount(count + 1) }, '+'),
+    h('button', { class: 'btn icon', 'aria-label': 'Arttır', html: icons.plus, onclick: () => setCount(count + 1) }),
   );
 
   const modeCtl = h(

@@ -4,8 +4,6 @@ import * as store from '../store.js';
 import { icons } from '../icons.js';
 import { easeOutQuart } from '../three/stage.js';
 
-export const meta = { route: 'liste', title: 'Custom Liste', icon: '📝' };
-
 export const TEMPLATES = [
   { name: 'Ne yesek?', items: ['Makarna', 'Tantuni', 'Pizza', 'Hamburger', 'Döner', 'Lahmacun', 'Mantı', 'Köfte'] },
   { name: 'Kim hesabı öder?', items: ['Ali', 'Ayşe', 'Mehmet', 'Zeynep'] },
@@ -63,7 +61,7 @@ function mountIndex(root) {
                       h('b', {}, l.name),
                       h('small', { class: 'muted' }, ` · ${l.items.length} seçenek`),
                     ),
-                    '›',
+                    h('span', { class: 'chev', html: icons.chevron }),
                   ),
                 ),
               ),

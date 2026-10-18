@@ -21,6 +21,8 @@ export {
   DodecahedronGeometry,
   IcosahedronGeometry,
   PolyhedronGeometry,
+  LatheGeometry,
+  Vector2,
   ShadowMaterial,
   MeshStandardMaterial,
   CanvasTexture,

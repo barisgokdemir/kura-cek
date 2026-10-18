@@ -1,14 +1,6 @@
 import { h, pageHeader, proofLine } from '../ui.js';
 import * as store from '../store.js';
-import { COLORS } from '../app.js';
-
-const NAMES = {
-  'yazi-tura': 'Yazı-Tura',
-  zar: 'Zar',
-  'kisa-cubuk': 'Kısa Çubuk',
-  liste: 'Liste',
-  'evet-hayir': 'Evet/Hayır',
-};
+import { COLORS, NAMES } from '../modules.js';
 
 export function mount(root) {
   let filter = '';

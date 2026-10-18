@@ -227,11 +227,66 @@ export function proofLine(record) {
         class: 'link',
         title: 'Kaydın parmak izini yeniden hesapla',
         onclick: async () => {
-          status.textContent = (await verify(record)) ? ' ✓ doğrulandı' : ' ✗ tutmuyor';
+          const ok = await verify(record);
+          status.className = `proof-status ${ok ? 'ok' : 'bad'}`;
+          status.innerHTML = `${ok ? icons.check : icons.cross}<span>${ok ? 'doğrulandı' : 'tutmuyor'}</span>`;
         },
       },
       record.code ? `kod ${record.code}` : 'kod yok (güvenli bağlantı gerekli)',
     ),
     status,
   );
+}
+
+// Satır başına bir öğe (isim, seçenek).
+export const parseLines = (text) =>
+  text
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+// − sayı + kontrolü
+export function stepper({ value, min, max, label, onChange }) {
+  let v = value;
+  const out = h('output', { 'aria-live': 'polite' }, String(v));
+  const set = (n) => {
+    v = Math.max(min, Math.min(max, n));
+    out.textContent = v;
+    onChange(v);
+  };
+  const el = h(
+    'div',
+    { class: 'stepper', role: 'group', 'aria-label': label },
+    h('button', { class: 'btn icon', type: 'button', 'aria-label': 'Azalt', html: icons.minus, onclick: () => set(v - 1) }),
+    out,
+    h('button', { class: 'btn icon', type: 'button', 'aria-label': 'Arttır', html: icons.plus, onclick: () => set(v + 1) }),
+  );
+  el.set = (n) => {
+    v = Math.max(min, Math.min(max, n));
+    out.textContent = v;
+  };
+  return el;
+}
+
+// Onay isteyen buton: ilk dokunuşta uyarır, ikincide çalışır.
+export function confirmButton(label, sureLabel, action, cls = 'btn danger') {
+  const btn = h('button', {
+    class: cls,
+    type: 'button',
+    onclick: () => {
+      if (!btn.dataset.sure) {
+        btn.dataset.sure = '1';
+        btn.textContent = sureLabel;
+        setTimeout(() => {
+          delete btn.dataset.sure;
+          btn.textContent = label;
+        }, 4000);
+        return;
+      }
+      delete btn.dataset.sure;
+      btn.textContent = label;
+      action();
+    },
+  }, label);
+  return btn;
 }

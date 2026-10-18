@@ -5,8 +5,6 @@ import { icons } from '../icons.js';
 import { createStage, webglAvailable, canvasTexture, easeOutCubic } from '../three/stage.js';
 import { onShake } from './coin.js';
 
-export const meta = { route: 'zar', title: 'Zar', icon: '🎲' };
-
 const TYPES = [4, 6, 8, 10, 12, 20];
 const TAVLA = ['', 'yek', 'dü', 'se', 'cihar', 'penç', 'şeş'];
 const TAVLA_DOUBLE = ['', 'Hep yek', 'Dü bara', 'Dü se', 'Dört cihar', 'Dü beş', 'Düşeş'];
@@ -60,9 +58,9 @@ export function mount(root) {
         h(
           'div',
           { class: 'stepper' },
-          h('button', { class: 'btn icon', 'aria-label': 'Azalt', onclick: () => setCount(count - 1) }, '−'),
+          h('button', { class: 'btn icon', 'aria-label': 'Azalt', html: icons.minus, onclick: () => setCount(count - 1) }),
           countOut,
-          h('button', { class: 'btn icon', 'aria-label': 'Arttır', onclick: () => setCount(count + 1) }, '+'),
+          h('button', { class: 'btn icon', 'aria-label': 'Arttır', html: icons.plus, onclick: () => setCount(count + 1) }),
         ),
       ),
       h('label', { class: 'field' }, h('span', {}, 'Zar tipi'), typeSel),
@@ -292,7 +290,7 @@ export function mount(root) {
           h(
             'div',
             { class: `die2d${which.includes(i) ? ' pop' : ''}${held[i] ? ' held' : ''}` },
-            vals?.[i] != null ? (sides === 6 ? '⚀⚁⚂⚃⚄⚅'[vals[i] - 1] : vals[i]) : sides === 6 ? '⚅' : `d${sides}`,
+            sides === 6 ? pips2D(vals?.[i] ?? 6) : vals?.[i] != null ? vals[i] : `d${sides}`,
           ),
         ),
       ),
@@ -381,6 +379,16 @@ export function mount(root) {
     stopShake();
     stage?.dispose();
   };
+}
+
+// 2D zar yüzü: emoji/yazı tipi yerine CSS noktaları (her cihazda aynı görünür).
+const PIP_CELLS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+function pips2D(v) {
+  return h(
+    'span',
+    { class: 'pips', 'aria-label': String(v) },
+    Array.from({ length: 9 }, (_, i) => h('i', { class: PIP_CELLS[v].includes(i) ? (v === 1 ? 'on one' : 'on') : '' })),
+  );
 }
 
 // d10 için 10 üçgen yüzlü beşgen çift piramit.
