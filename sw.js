@@ -1,6 +1,6 @@
 // Önbellek-öncelikli service worker: uygulama internetsiz çalışır.
 // Bir dosya değiştiğinde VERSION'ı arttır.
-const VERSION = 'kura-cek-v8';
+const VERSION = 'kura-cek-v9';
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 const ASSETS = [
   './',

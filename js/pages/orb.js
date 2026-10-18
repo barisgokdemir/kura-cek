@@ -19,7 +19,8 @@ export const ANSWERS = {
   ],
 };
 
-// Yatay atlıkarınca: 8 yüz, hedef cevap + diğer cevaplardan karışık dolgu.
+// Pencerenin içinde dönen küçük bir küre gibi: 8 yüz, yarıçap pencereye göre.
+// Hedef cevap + diğer cevaplardan karışık dolgu.
 const FACES = 8;
 const STEP = 360 / FACES;
 
@@ -89,16 +90,18 @@ export function mount(root) {
     const faces = Array.from({ length: FACES }, (_, i) => (target && i === targetFace ? target : others[i % others.length] || pool[0]));
     drum.replaceChildren(
       ...faces.map(([text, tone], i) =>
-        h('div', { class: `orb-face t-${tone}`, style: { transform: `rotateY(${i * STEP}deg) translateZ(var(--r))` } }, h('span', {}, text)),
+        h('div', { class: `orb-face t-${tone}`, style: { transform: `rotateY(${i * STEP}deg) translateZ(var(--r))` } }, h('div', { class: 'orb-tri' }, h('span', {}, text))),
       ),
     );
     return faces;
   }
 
-  // Atlıkarınca yarıçapı: yüz genişliğine göre (r = w/2 / tan(π/n)).
+  // Yarıçap pencere yarıçapına yakın; yüz genişliği yarıçaptan çıkar (w = 2·r·tan(π/n)).
+  // Böylece yüzler dairenin içinde döner, yanlara gittikçe daralıp kenarda kaybolur.
   const fitRadius = () => {
-    const w = windowEl.clientWidth * 0.84;
-    orbEl.style.setProperty('--r', `${Math.round(w / 2 / Math.tan(Math.PI / FACES)) + 2}px`);
+    const r = windowEl.clientWidth * 0.5;
+    orbEl.style.setProperty('--r', `${Math.round(r)}px`);
+    orbEl.style.setProperty('--fw', `${Math.round(2 * r * Math.tan(Math.PI / FACES))}px`);
   };
   const ro = new ResizeObserver(fitRadius);
   ro.observe(windowEl);
