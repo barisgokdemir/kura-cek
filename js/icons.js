@@ -59,5 +59,8 @@ export const icons = {
   orb: svg(`<circle cx="32" cy="30" r="20"/><path d="M22 54h20"/><path d="M24 24a10 10 0 018-6" opacity=".7"/>${spark(50, 10)}`),
   hash: svg(`<path d="M24 10l-4 44M44 10l-4 44M12 24h42M10 40h42"/>`),
   ticket: svg(`<path d="M8 20h48v8a4 4 0 000 8v8H8v-8a4 4 0 000-8z"/><path d="M40 20v24" stroke-dasharray="3 4"/>`),
+  rock: svg(`<path d="M14 40l4-16 12-8 14 3 8 12-2 13-12 8H22z"/><path d="M26 30l6 4M38 28l-2 8" opacity=".6" stroke-width="2"/>`),
+  paper: svg(`<path d="M16 8h22l12 12v36H16z"/><path d="M38 8v12h12M22 30h20M22 38h20M22 46h14" stroke-width="2.5"/>`),
+  scissors: svg(`<circle cx="18" cy="46" r="7"/><circle cx="46" cy="46" r="7"/><path d="M23 41L44 10M41 41L20 10"/>`),
   shuffle: svg(`<path d="M8 20h10c10 0 18 24 28 24h10M8 44h10c4 0 7-3 10-8M36 28c3-5 6-8 10-8h10"/><path d="M50 14l6 6-6 6M50 38l6 6-6 6"/>`),
 };

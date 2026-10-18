@@ -18,6 +18,10 @@
 | Takım Kurucu | N takım; seviye verilirse yılan sırasıyla dengeli dağıtım |
 | İsim-Şehir | Türk alfabesi, zor harfleri çıkarma, tekrar etmeme, geri sayım |
 | Hediyeleşme | Kısıtlı eşleşme (kendini/eşini çekmeme); elden ele ya da kişiye özel link |
+| Taş-Kağıt-Makas | Uygulamaya karşı (uygulamanın hamlesi oyuncu seçmeden önce mühürlenir) ya da iki kişi aynı ekranda |
+| Sihirli Küre | Klasik 20 cevap ya da Evet/Hayır/Belki; dokun veya salla |
+| Rastgele Sayı | Aralık, adet, tekrarsız, sıralı; 1–6, 1–100, loto kalıpları |
+| Kazı Kazan | Ödüller kartlara karıştırılır; her kişi kendi linkini açıp parmağıyla kazır |
 
 Tüm ikonlar SVG; emoji kullanılmaz, her cihazda aynı görünür.
 
@@ -56,7 +60,7 @@ js/pages/*.js     sayfalar
 
 ## Yol haritası
 
-- **Sıradaki:** taş-kağıt-makas, sihirli küre, rastgele sayı/piyango, kazı kazan
+- **Sıradaki:** sayışmaca tekerlemesi, iskambil kartı çekme, nöbet sırası, oturma planı
 - **Sonra:** eleme modu, ağırlık, liste link paylaşımı, sayışmaca tekerlemesi, İngilizce
 
 ## Lisans

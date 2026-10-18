@@ -12,13 +12,17 @@ export const MODULES = [
   { route: 'takim-kurucu', title: 'Takım Kurucu', icon: 'team', color: 'var(--sky)', desc: 'Halı saha için adil takımlar. İstersen seviye ver, dengeli dağıtsın.' },
   { route: 'isim-sehir', title: 'İsim-Şehir', icon: 'letter', color: 'var(--lime)', desc: 'Türk alfabesinden harf çek, zor harfleri çıkar, süreyi başlat.' },
   { route: 'hediyelesme', title: 'Hediyeleşme', icon: 'gift', color: 'var(--indigo)', desc: 'Yılbaşı kurası: elden ele ya da kişiye özel linkle gizli eşleşme.' },
+  { route: 'tas-kagit-makas', title: 'Taş-Kağıt-Makas', icon: 'rps', color: 'var(--fuchsia)', desc: 'Uygulamaya karşı ya da iki kişi aynı ekranda. Uygulama hamlesini önceden mühürler.' },
+  { route: 'sihirli-kure', title: 'Sihirli Küre', icon: 'orb', color: 'var(--teal)', desc: 'Sorunu sor, küreyi salla. Klasik 20 cevap ya da Evet/Hayır/Belki.' },
+  { route: 'rastgele-sayi', title: 'Rastgele Sayı', icon: 'hash', color: 'var(--mint)', desc: 'Aralık seç, kaç sayı istediğini yaz. Tekrarsız, sıralı, loto kalıpları.' },
+  { route: 'kazi-kazan', title: 'Kazı Kazan', icon: 'ticket', color: 'var(--gold)', desc: 'Ödülleri yaz, kartları oluştur; herkes kendi telefonunda kazısın.' },
 ];
 
 export const SOON = [
-  ['Taş-Kağıt-Makas', 'rps'],
-  ['Sihirli Küre', 'orb'],
-  ['Rastgele Sayı', 'hash'],
-  ['Kazı Kazan', 'ticket'],
+  ['Sayışmaca', 'finger'],
+  ['İskambil Kartı', 'ticket'],
+  ['Nöbet Sırası', 'timer'],
+  ['Oturma Planı', 'team'],
 ];
 
 export const COLORS = Object.fromEntries(MODULES.map((m) => [m.route, m.color]));

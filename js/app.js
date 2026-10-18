@@ -14,6 +14,10 @@ import * as finger from './pages/finger.js';
 import * as teams from './pages/teams.js';
 import * as letter from './pages/letter.js';
 import * as gift from './pages/gift.js';
+import * as rps from './pages/rps.js';
+import * as orb from './pages/orb.js';
+import * as numbers from './pages/numbers.js';
+import * as scratch from './pages/scratch.js';
 import { COLORS } from './modules.js';
 
 // Hash tabanlı yönlendirme: GitHub Pages'te 404 sorunu çıkarmaz.
@@ -29,6 +33,10 @@ const ROUTES = {
   'takim-kurucu': { page: teams, title: 'Takım Kurucu', recent: true },
   'isim-sehir': { page: letter, title: 'İsim-Şehir', recent: true },
   hediyelesme: { page: gift, title: 'Hediyeleşme', recent: true },
+  'tas-kagit-makas': { page: rps, title: 'Taş-Kağıt-Makas', recent: true },
+  'sihirli-kure': { page: orb, title: 'Sihirli Küre', recent: true },
+  'rastgele-sayi': { page: numbers, title: 'Rastgele Sayı', recent: true },
+  'kazi-kazan': { page: scratch, title: 'Kazı Kazan', recent: true },
   gecmis: { page: history, title: 'Geçmiş' },
   hakkinda: { page: about, title: 'Hakkında' },
   ayarlar: { page: settings, title: 'Ayarlar' },
