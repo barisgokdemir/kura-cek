@@ -1,6 +1,7 @@
 import { h, pageHeader, showResult, sound, sleep, reducedMotion, toast } from '../ui.js';
 import { randomInt, sample, shuffle, seal } from '../rng.js';
 import * as store from '../store.js';
+import { icons } from '../icons.js';
 import { easeOutQuart } from '../three/stage.js';
 
 export const meta = { route: 'liste', title: 'Custom Liste', icon: '📝' };
@@ -19,7 +20,8 @@ const MODES = [
   { id: 'all', label: 'Tümünü sırala' },
 ];
 
-const COLORS = ['#ff5a5f', '#ffb400', '#00a699', '#7b61ff', '#2bb3ff', '#ff8a00', '#e84393', '#20bf6b'];
+// SocialCPU neon paleti; dilim yazıları koyu (#0a0a1a) okunur.
+const COLORS = ['#22d3ee', '#f472b6', '#4ade80', '#a78bfa', '#fbbf24', '#fb7185', '#38bdf8', '#fb923c'];
 
 export function newList(name = 'Yeni liste', items = []) {
   return { id: store.uid(), name, items, mode: 'one', n: 2, fav: false, updated: Date.now() };
@@ -38,8 +40,8 @@ function mountIndex(root) {
   };
   root.append(
     ...[
-      pageHeader('Custom Liste', 'Seçeneklerini yaz; tek sonuç, birkaç sonuç ya da tüm listeyi karıştır.'),
-      h('div', { class: 'controls' }, h('button', { class: 'btn primary big', onclick: () => create() }, '+ Yeni liste')),
+      pageHeader('Custom Liste', 'Seçeneklerini yaz; çark çevir, birkaç sonuç seç ya da tüm listeyi karıştır.', 'wheel'),
+      h('div', { class: 'controls' }, h('button', { class: 'btn primary big', onclick: () => create(), html: icons.plus }, 'Yeni liste')),
       lists.length
         ? h(
             'section',
@@ -54,11 +56,11 @@ function mountIndex(root) {
                   {},
                   h(
                     'a',
-                    { href: `#/liste/${l.id}`, class: 'card row' },
+                    { href: `#/liste/${l.id}`, class: 'card', html: l.fav ? icons.star : icons.wheel },
                     h(
                       'span',
                       { class: 'grow' },
-                      h('b', {}, l.fav ? '★ ' : '', l.name),
+                      h('b', {}, l.name),
                       h('small', { class: 'muted' }, ` · ${l.items.length} seçenek`),
                     ),
                     '›',
@@ -75,7 +77,7 @@ function mountIndex(root) {
         h(
           'div',
           { class: 'chips' },
-          TEMPLATES.map((t) => h('button', { class: 'chip', onclick: () => create(t) }, t.name)),
+          TEMPLATES.map((t) => h('button', { class: 'chip', onclick: () => create(t), html: icons.plus }, t.name)),
         ),
       ),
     ].filter(Boolean),
@@ -114,14 +116,14 @@ function mountEditor(root, id) {
       class: 'btn icon',
       'aria-pressed': String(list.fav),
       title: 'Favori',
+      'aria-label': 'Favorilere ekle',
+      html: icons.star,
       onclick: () => {
         list.fav = !list.fav;
         favBtn.setAttribute('aria-pressed', String(list.fav));
-        favBtn.textContent = list.fav ? '★' : '☆';
         persist();
       },
     },
-    list.fav ? '★' : '☆',
   );
 
   const itemsEl = h('textarea', {
@@ -184,13 +186,13 @@ function mountEditor(root, id) {
   const cardsEl = h('ol', { class: 'reveal-cards' });
   const view = h('div', { class: 'list-view' });
   const resultSlot = h('div');
-  const drawBtn = h('button', { class: 'btn primary big', onclick: () => draw() }, 'Kura çek');
+  const drawBtn = h('button', { class: 'btn primary big', onclick: () => draw(), html: icons.wheel }, 'Kura çek');
 
   root.append(
     h(
       'header',
       { class: 'page-head' },
-      h('a', { class: 'back', href: '#/liste', 'aria-label': 'Listeler' }, '←'),
+      h('a', { class: 'back', href: '#/liste', 'aria-label': 'Listeler', html: icons.back }),
       nameEl,
       favBtn,
     ),
@@ -238,13 +240,37 @@ function mountEditor(root, id) {
     const opts = items();
     const c = canvas.getContext('2d');
     const S = canvas.width;
-    const r = S / 2 - 8;
+    const css = getComputedStyle(document.documentElement);
+    const accent = css.getPropertyValue('--mc').trim().startsWith('var') ? css.getPropertyValue('--green').trim() : css.getPropertyValue('--mc').trim();
+    const rimR = S / 2 - 10;
+    const r = rimR - 26;
     c.clearRect(0, 0, S, S);
     c.save();
     c.translate(S / 2, S / 2);
+
+    // Dış halka: koyu çerçeve, neon kenar ve ışıklar
+    c.beginPath();
+    c.arc(0, 0, rimR, 0, Math.PI * 2);
+    c.fillStyle = '#12122a';
+    c.fill();
+    c.lineWidth = 4;
+    c.strokeStyle = accent;
+    c.shadowColor = accent;
+    c.shadowBlur = 18;
+    c.stroke();
+    c.shadowBlur = 0;
+    const bulbs = 24;
+    for (let i = 0; i < bulbs; i++) {
+      const a = (i / bulbs) * Math.PI * 2 + rot;
+      c.beginPath();
+      c.arc(Math.cos(a) * (rimR - 13), Math.sin(a) * (rimR - 13), 4.5, 0, Math.PI * 2);
+      c.fillStyle = i % 2 ? accent : '#ffffff';
+      c.fill();
+    }
+
     if (!opts.length) {
-      c.fillStyle = getComputedStyle(document.body).getPropertyValue('--muted') || '#888';
-      c.font = '600 28px system-ui, sans-serif';
+      c.fillStyle = '#8b8bb3';
+      c.font = '700 28px Sora, system-ui, sans-serif';
       c.textAlign = 'center';
       c.fillText('Seçenek ekle', 0, 10);
       c.restore();
@@ -258,27 +284,47 @@ function mountEditor(root, id) {
       c.moveTo(0, 0);
       c.arc(0, 0, r, a0, a0 + seg);
       c.closePath();
-      c.fillStyle = COLORS[i % COLORS.length];
-      if (opts.length % COLORS.length === 1 && i === opts.length - 1) c.fillStyle = COLORS[3];
+      let color = COLORS[i % COLORS.length];
+      if (opts.length % COLORS.length === 1 && i === opts.length - 1) color = COLORS[3];
+      c.fillStyle = color;
       c.fill();
-      c.strokeStyle = 'rgba(255,255,255,.7)';
+      c.strokeStyle = '#0a0a1a';
       c.lineWidth = 3;
       c.stroke();
       c.save();
       c.rotate(a0 + seg / 2);
-      c.fillStyle = '#fff';
+      c.fillStyle = '#0a0a1a';
       c.textAlign = 'right';
       c.textBaseline = 'middle';
-      const size = Math.max(14, Math.min(34, 320 / Math.max(opts.length, 6) + 10));
-      c.font = `700 ${size}px system-ui, sans-serif`;
+      const size = Math.max(14, Math.min(32, 300 / Math.max(opts.length, 6) + 10));
+      c.font = `800 ${size}px Sora, system-ui, sans-serif`;
       let text = label;
-      while (c.measureText(text).width > r * 0.72 && text.length > 3) text = text.slice(0, -2) + '…';
-      c.fillText(text, r - 22, 0);
+      while (c.measureText(text).width > r * 0.68 && text.length > 3) text = text.slice(0, -2) + '…';
+      c.fillText(text, r - 18, 0);
       c.restore();
     });
+    // Derinlik için iç gölge
+    const g = c.createRadialGradient(0, 0, r * 0.2, 0, 0, r);
+    g.addColorStop(0, 'rgba(255,255,255,0.10)');
+    g.addColorStop(1, 'rgba(0,0,0,0.22)');
     c.beginPath();
-    c.arc(0, 0, 34, 0, Math.PI * 2);
-    c.fillStyle = '#fff';
+    c.arc(0, 0, r, 0, Math.PI * 2);
+    c.fillStyle = g;
+    c.fill();
+    // Göbek
+    c.beginPath();
+    c.arc(0, 0, 40, 0, Math.PI * 2);
+    c.fillStyle = '#0a0a1a';
+    c.fill();
+    c.lineWidth = 5;
+    c.strokeStyle = accent;
+    c.shadowColor = accent;
+    c.shadowBlur = 14;
+    c.stroke();
+    c.shadowBlur = 0;
+    c.beginPath();
+    c.arc(0, 0, 10, 0, Math.PI * 2);
+    c.fillStyle = accent;
     c.fill();
     c.restore();
   }
@@ -386,6 +432,7 @@ function mountEditor(root, id) {
 
   syncN();
   showView();
+  document.fonts?.ready.then(() => !dead && list.mode === 'one' && drawWheel(rotation));
   if (!list.items.length) itemsEl.focus();
 
   return () => {

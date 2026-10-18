@@ -1,27 +1,46 @@
 <!doctype html>
-<html lang="tr">
+<html lang="tr" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Kura Çek</title>
     <meta name="description" content="Ücretsiz, reklamsız, kayıtsız rastgelelik: 3D yazı-tura, zar, kısa çubuk ve listeden kura. Adil olduğunu kanıtlar." />
-    <meta name="theme-color" content="#7b61ff" />
+    <meta name="theme-color" content="#0a0a1a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap"
+    />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="modulepreload" href="js/app.js" />
+    <script>
+      // Tema, ilk boyamadan önce uygulanır (yanıp sönmeyi önler).
+      try {
+        const t = JSON.parse(localStorage.getItem('kuracek:v1'))?.settings?.theme;
+        if (t) document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
   </head>
   <body>
     <a class="skip" href="#app">İçeriğe geç</a>
-    <main id="app" tabindex="-1"></main>
-    <nav class="tabbar" aria-label="Ana menü">
-      <a href="#/"><span aria-hidden="true">🏠</span>Ana sayfa</a>
-      <a href="#/gecmis"><span aria-hidden="true">🕘</span>Geçmiş</a>
-      <a href="#/ayarlar"><span aria-hidden="true">⚙️</span>Ayarlar</a>
-      <a href="#/hakkinda"><span aria-hidden="true">ℹ️</span>Hakkında</a>
+    <nav class="navbar" aria-label="Üst menü">
+      <a class="brand" href="#/"><img src="icons/icon.svg" alt="" width="34" height="34" />Kura <span>Çek</span></a>
+      <div class="nav-links" data-nav></div>
     </nav>
-    <noscript><p class="center">Kura Çek için JavaScript gerekli.</p></noscript>
+    <main id="app" tabindex="-1"></main>
+    <footer class="footer">
+      <span>Ücretsiz · reklamsız · kayıtsız</span>
+      <a href="https://game.socialcpu.com/" rel="noopener">SocialCPU Games</a>
+      <a href="https://www.socialcpu.com/" rel="noopener">socialcpu.com</a>
+    </footer>
+    <nav class="tabbar" aria-label="Ana menü" data-nav></nav>
+    <noscript><p style="text-align: center">Kura Çek için JavaScript gerekli.</p></noscript>
     <script type="module" src="js/app.js"></script>
   </body>
 </html>

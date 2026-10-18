@@ -1,15 +1,23 @@
 import { h, proofLine, sound, vibrate } from '../ui.js';
 import { randomInt, seal } from '../rng.js';
+import { icons } from '../icons.js';
 import * as store from '../store.js';
 
 export const MODULES = [
-  { route: 'yazi-tura', title: 'Yazı-Tura', icon: '🪙', desc: "3D para; çoklu para, 3'te 2 ve 5'te 3 seri.", anim: 'spin' },
-  { route: 'zar', title: 'Zar', icon: '🎲', desc: "d4'ten d20'ye 3D zarlar, zar tutma, tavla modu.", anim: 'roll' },
-  { route: 'kisa-cubuk', title: 'Kısa Çubuk', icon: '🥢', desc: 'Kötü iş kime? Elden ele modu ile gizli çekiliş.', anim: 'pull' },
-  { route: 'liste', title: 'Custom Liste', icon: '📝', desc: 'Çark, N sonuç ya da tüm listeyi karıştır.', anim: 'wheel' },
+  { route: 'yazi-tura', title: 'Yazı-Tura', icon: 'coin', color: 'var(--amber)', desc: "3D para. Çoklu para, 3'te 2 ve 5'te 3 seri, özel yüz etiketleri." },
+  { route: 'zar', title: 'Zar', icon: 'dice', color: 'var(--cyan)', desc: "d4'ten d20'ye 3D zarlar. Zar tut, kalanları at; tavla modu." },
+  { route: 'kisa-cubuk', title: 'Kısa Çubuk', icon: 'sticks', color: 'var(--pink)', desc: 'Kötü iş kime? Elden ele modunda sonuç sona kadar gizli.' },
+  { route: 'liste', title: 'Custom Liste', icon: 'wheel', color: 'var(--green)', desc: 'Çark çevir, N sonuç seç ya da tüm listeyi karıştır.' },
 ];
 
-const SOON = ['Parmak seçici', 'Takım kurucu', 'İsim-Şehir harfi', 'Şişe çevirme', 'Tombala', 'Hediyeleşme'];
+const SOON = [
+  ['Parmak seçici', 'finger'],
+  ['Takım kurucu', 'team'],
+  ['İsim-Şehir harfi', 'letter'],
+  ['Şişe çevirme', 'bottle'],
+  ['Tombala', 'bingo'],
+  ['Hediyeleşme', 'gift'],
+];
 
 export function mount(root) {
   const s = store.get();
@@ -42,12 +50,13 @@ export function mount(root) {
       h(
         'section',
         { class: 'hero' },
-        h('h1', {}, 'Kura Çek'),
-        h('p', { class: 'muted' }, 'Ücretsiz, reklamsız, kayıtsız. Adil olduğunu kanıtlayan rastgelelik.'),
+        h('span', { class: 'eyebrow' }, h('span', { class: 'dot' }), 'Adil · Reklamsız · Kayıtsız'),
+        h('h1', {}, 'Kura ', h('span', {}, 'Çek')),
+        h('p', { class: 'muted' }, 'Kriptografik rastgelelik, gerçek 3D animasyon. Sonuç önce belirlenir, her çekiliş doğrulanabilir.'),
         h(
           'div',
-          { class: 'yesno' },
-          h('button', { class: 'btn primary big', onclick: yesNo }, 'Hızlı karar: Evet mi, hayır mı?'),
+          { class: 'quick', style: { '--mc': 'var(--cyan)' } },
+          h('button', { class: 'btn primary big', onclick: yesNo, html: icons.bolt }, 'Evet mi, hayır mı?'),
           answer,
           proof,
         ),
@@ -60,7 +69,9 @@ export function mount(root) {
             h(
               'div',
               { class: 'chips' },
-              recent.map((m) => h('a', { class: 'chip', href: `#/${m.route}` }, `${m.icon} ${m.title}`)),
+              recent.map((m) =>
+                h('a', { class: 'chip', href: `#/${m.route}`, style: { '--card-color': m.color }, html: icons[m.icon] }, m.title),
+              ),
             ),
           )
         : null,
@@ -72,7 +83,9 @@ export function mount(root) {
             h(
               'div',
               { class: 'chips' },
-              favs.map((l) => h('a', { class: 'chip', href: `#/liste/${l.id}` }, `★ ${l.name}`)),
+              favs.map((l) =>
+                h('a', { class: 'chip', href: `#/liste/${l.id}`, style: { '--card-color': 'var(--amber)' }, html: icons.star }, l.name),
+              ),
             ),
           )
         : null,
@@ -86,10 +99,15 @@ export function mount(root) {
           MODULES.map((m) =>
             h(
               'a',
-              { class: 'card module', href: `#/${m.route}` },
-              h('span', { class: `module-icon anim-${m.anim}`, 'aria-hidden': 'true' }, m.icon),
-              h('b', {}, m.title),
-              h('small', { class: 'muted' }, m.desc),
+              { class: 'card game-card', href: `#/${m.route}`, style: { '--card-color': m.color } },
+              h('div', { class: 'game-card-thumb', html: icons[m.icon] }),
+              h(
+                'div',
+                { class: 'game-card-body' },
+                h('span', { class: 'game-card-title' }, m.title),
+                h('span', { class: 'game-card-desc' }, m.desc),
+                h('span', { class: 'game-card-play', html: icons.play }, 'Aç'),
+              ),
             ),
           ),
         ),
@@ -100,8 +118,8 @@ export function mount(root) {
         h('h2', {}, 'Yakında'),
         h(
           'div',
-          { class: 'chips' },
-          SOON.map((t) => h('span', { class: 'chip disabled' }, t)),
+          { class: 'soon' },
+          SOON.map(([t, ic]) => h('div', { class: 'soon-item', html: icons[ic] }, t)),
         ),
       ),
     ].filter(Boolean),

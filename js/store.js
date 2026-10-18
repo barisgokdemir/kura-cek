@@ -8,7 +8,7 @@ const RECENT_LIMIT = 4;
 
 const defaults = () => ({
   version: 1,
-  settings: { theme: 'auto', sound: true, vibrate: true, motion: 'auto' },
+  settings: { theme: 'dark', sound: true, vibrate: true, motion: 'auto' },
   history: [],
   recent: [],
   lists: [],

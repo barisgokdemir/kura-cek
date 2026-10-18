@@ -1,5 +1,6 @@
 import { h, pageHeader, proofLine } from '../ui.js';
 import * as store from '../store.js';
+import { COLORS } from '../app.js';
 
 const NAMES = {
   'yazi-tura': 'Yazı-Tura',
@@ -38,14 +39,14 @@ export function mount(root) {
     listEl.replaceChildren(
       ...(items.length
         ? items.map((r) =>
-            h('li', { class: 'card' }, h('small', { class: 'tag' }, NAMES[r.module] || r.module), h('p', {}, r.summary), proofLine(r)),
+            h('li', { class: 'card', style: { '--card-color': COLORS[r.module] || 'var(--cyan)' } }, h('small', { class: 'tag' }, NAMES[r.module] || r.module), h('p', {}, r.summary), proofLine(r)),
           )
         : [h('li', { class: 'muted center' }, 'Henüz sonuç yok.')]),
     );
   }
 
   root.append(
-    pageHeader('Geçmiş', 'Son 50 sonuç. Kod, kaydın değiştirilmediğini doğrular.'),
+    pageHeader('Geçmiş', 'Son 50 sonuç. Koda dokun, kaydı doğrula.', 'history'),
     h('div', { class: 'row wrap' }, select, clearBtn),
     listEl,
   );

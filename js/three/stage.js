@@ -23,7 +23,7 @@ export const easeOutCubic = (t) => 1 - (1 - t) ** 3;
 export const easeOutQuart = (t) => 1 - (1 - t) ** 4;
 export const easeInOutSine = (t) => -(Math.cos(Math.PI * t) - 1) / 2;
 
-export async function createStage(container, { cameraPos = [0, 7, 5], fov = 40 } = {}) {
+export async function createStage(container, { cameraPos = [0, 7, 5], fov = 40, accent = 0x22d3ee } = {}) {
   const THREE = await loadThree();
   const low = lowPower();
 
@@ -47,8 +47,12 @@ export async function createStage(container, { cameraPos = [0, 7, 5], fov = 40 }
   sun.shadow.mapSize.set(1024, 1024);
   Object.assign(sun.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 30 });
   scene.add(sun);
+  // Neon kenar ışığı (SocialCPU vurgusu)
+  const rimLight = new THREE.DirectionalLight(accent, 1.6);
+  rimLight.position.set(-6, 3, -6);
+  scene.add(rimLight);
 
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: 0.18 }));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: 0.45 }));
   ground.rotation.x = -Math.PI / 2;
   ground.receiveShadow = true;
   scene.add(ground);

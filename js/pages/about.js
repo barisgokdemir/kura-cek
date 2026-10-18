@@ -2,7 +2,7 @@ import { h, pageHeader } from '../ui.js';
 
 export function mount(root) {
   root.append(
-    pageHeader('Hakkında', 'Kura Çek nasıl adil kalır?'),
+    pageHeader('Hakkında', 'Kura Çek nasıl adil kalır?', 'info'),
     h(
       'article',
       { class: 'prose', html: `

@@ -1,6 +1,7 @@
 import { h, pageHeader, showResult, sound, sleep, vibrate, reducedMotion } from '../ui.js';
 import { shuffle, seal } from '../rng.js';
 import * as store from '../store.js';
+import { icons } from '../icons.js';
 
 export const meta = { route: 'kisa-cubuk', title: 'Kısa Çubuk', icon: '🥢' };
 
@@ -23,19 +24,19 @@ export function mount(root) {
   const resultSlot = h('div');
 
   root.append(
-    pageHeader('Kısa Çubuk', 'Kötü işi kim yapacak? Kısa çubuğu çeken.'),
+    pageHeader('Kısa Çubuk', 'Kötü işi kim yapacak? Kısa çubuğu çeken.', 'sticks'),
     h(
       'section',
       { class: 'panel open' },
       h('label', { class: 'field col' }, h('span', {}, 'İsimler'), namesEl),
       h(
         'div',
-        { class: 'row wrap' },
+        { class: 'fields-2' },
         h('label', { class: 'field' }, h('span', {}, 'Kişi sayısı'), countEl),
         h('label', { class: 'field' }, h('span', {}, 'Kısa çubuk'), shortEl),
       ),
-      h('label', { class: 'field' }, h('span', {}, 'Mod'), modeEl),
-      h('button', { class: 'btn primary big', onclick: () => start() }, 'Çubukları hazırla'),
+      h('label', { class: 'field col' }, h('span', {}, 'Mod'), modeEl),
+      h('button', { class: 'btn primary big block', onclick: () => start(), html: icons.sticks }, 'Çubukları hazırla'),
     ),
     play,
     resultSlot,
@@ -79,13 +80,15 @@ export function mount(root) {
     hand.append(...sticks, fist);
 
     play.replaceChildren(
-      h('p', { class: 'muted center small' }, `Çubuklar karıştırıldı ve mühürlendi · taahhüt kodu ${record.code ?? '—'}`),
+      h('p', { class: 'commit' }, 'Çubuklar karıştırıldı ve mühürlendi', h('code', { title: 'Taahhüt kodu: çekilişten önce sabitlendi' }, record.code ?? '—')),
       prompt,
       hand,
       out,
     );
 
     const slow = !reducedMotion();
+    // Telefonda form uzun; çekiliş alanını görünür yap.
+    requestAnimationFrame(() => prompt.scrollIntoView({ behavior: slow ? 'smooth' : 'auto', block: 'start' }));
 
     function addDrawn(name, pos, hidden) {
       const card = h(
@@ -119,7 +122,7 @@ export function mount(root) {
         prompt.textContent = 'Herkes çekti.';
         hand.classList.add('empty');
         play.append(
-          h('div', { class: 'controls' }, h('button', { class: 'btn primary big', onclick: reveal }, 'Sonuçları aç')),
+          h('div', { class: 'controls' }, h('button', { class: 'btn primary big', onclick: reveal, html: icons.bolt }, 'Sonuçları aç')),
         );
         return;
       }

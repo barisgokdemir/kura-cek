@@ -51,11 +51,11 @@ export function mount(root) {
   }
 
   root.append(
-    pageHeader('Ayarlar'),
+    pageHeader('Ayarlar', 'Tema, ses, animasyon ve veriler.', 'settings'),
     h(
       'section',
       { class: 'panel open' },
-      select('theme', 'Tema', [['auto', 'Sistem'], ['light', 'Açık'], ['dark', 'Koyu']]),
+      select('theme', 'Tema', [['dark', 'Koyu'], ['light', 'Açık'], ['auto', 'Sistem']]),
       select('motion', 'Animasyon', [['auto', 'Sistem tercihine uy'], ['full', 'Tam (3D)'], ['reduce', 'Azaltılmış (2D)']]),
       toggle('sound', 'Ses'),
       toggle('vibrate', 'Titreşim (Android)'),

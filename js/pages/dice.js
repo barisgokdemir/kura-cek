@@ -1,6 +1,7 @@
 import { h, pageHeader, showResult, sound, sleep, reducedMotion } from '../ui.js';
 import { randomInt, seal } from '../rng.js';
 import * as store from '../store.js';
+import { icons } from '../icons.js';
 import { createStage, webglAvailable, canvasTexture, easeOutCubic } from '../three/stage.js';
 import { onShake } from './coin.js';
 
@@ -29,10 +30,11 @@ export function mount(root) {
   let stage = null;
   let dice = [];
 
-  const stageEl = h('div', { class: 'stage', tabindex: '0', 'aria-label': 'Zarları atmak için dokun' });
+  const stageEl = h('div', { class: 'stage', tabindex: '0', role: 'button', 'aria-label': 'Zarları atmak için dokun' });
+  const hint = h('span', { class: 'stage-hint' }, 'Dokun · yukarı kaydır · salla');
   const chipsEl = h('div', { class: 'chips center' });
   const resultSlot = h('div');
-  const rollBtn = h('button', { class: 'btn primary big', onclick: () => roll() }, 'Zarları at');
+  const rollBtn = h('button', { class: 'btn primary big', onclick: () => roll(), html: icons.dice }, 'Zarları at');
   const countOut = h('output', {}, String(count));
   const typeSel = h(
     'select',
@@ -42,7 +44,7 @@ export function mount(root) {
   const tavlaChk = h('input', { type: 'checkbox', onchange: (e) => setTavla(e.target.checked) });
 
   root.append(
-    pageHeader('Zar', 'Dokun, yukarı kaydır ya da salla. Atıştan sonra zarı tutup kalanları yeniden atabilirsin.'),
+    pageHeader('Zar', 'd4’ten d20’ye, tavla dahil.', 'dice'),
     stageEl,
     chipsEl,
     h('div', { class: 'controls' }, rollBtn),
@@ -64,7 +66,7 @@ export function mount(root) {
         ),
       ),
       h('label', { class: 'field' }, h('span', {}, 'Zar tipi'), typeSel),
-      h('label', { class: 'field check' }, tavlaChk, h('span', {}, 'Tavla modu (iki zar, çiftler vurgulu)')),
+      h('label', { class: 'field check' }, h('span', {}, 'Tavla modu (iki zar, çiftler vurgulu)'), tavlaChk),
     ),
   );
 
@@ -114,11 +116,14 @@ export function mount(root) {
                 },
               },
               h('b', {}, v),
-              held[i] ? ' 🔒' : '',
+              held[i] ? 'tutuldu' : '',
             ),
           )
         : []),
     );
+    if (values.length && !tavla && count > 1) {
+      chipsEl.append(h('span', { class: 'muted small', style: { flexBasis: '100%', textAlign: 'center' } }, 'Tutmak istediğin zarın sayısına dokun'));
+    }
   }
 
   // ---------- 3D ----------
@@ -126,7 +131,8 @@ export function mount(root) {
   let THREE;
 
   async function init3D() {
-    stage = await createStage(stageEl, { cameraPos: [0, 9, 6] });
+    stage = await createStage(stageEl, { cameraPos: [0, 9, 6], accent: 0x22d3ee });
+    stageEl.append(hint);
     if (dead) return stage.dispose();
     THREE = stage.THREE;
     rebuild();
@@ -146,7 +152,7 @@ export function mount(root) {
   }
 
   function makeDie() {
-    const color = { 4: 0x2bb3ff, 6: 0xfafafa, 8: 0x7b61ff, 10: 0x00a699, 12: 0xff8a00, 20: 0xff5a5f }[sides];
+    const color = { 4: 0x22d3ee, 6: 0xfafafa, 8: 0xa78bfa, 10: 0x4ade80, 12: 0xfbbf24, 20: 0xf472b6 }[sides];
     let mesh;
     if (sides === 6) {
       const mats = D6_FACES.map(
@@ -190,7 +196,9 @@ export function mount(root) {
       scene.add(d);
       dice.push(d);
     }
-    const scale = Math.max(1, cols * 0.55 + rows * 0.25);
+    // Dar (dikey) ekranda yatay görüş azalır; kamerayı en-boy oranına göre uzaklaştır.
+    const aspect = stageEl.clientWidth / Math.max(1, stageEl.clientHeight);
+    const scale = Math.max(0.75, (cols * 0.42 + rows * 0.2) / Math.min(1, aspect + 0.15));
     camera.position.set(0, 9 * scale, 6 * scale);
     camera.lookAt(0, 0, 0);
     stage.render();
@@ -214,7 +222,7 @@ export function mount(root) {
     }
     if (value == null || sides === 6) return;
     const tex = canvasTexture(THREE, 128, (c, s) => {
-      c.fillStyle = 'rgba(20,20,30,.85)';
+      c.fillStyle = 'rgba(10,10,26,.9)';
       c.beginPath();
       c.arc(s / 2, s / 2, s * 0.46, 0, Math.PI * 2);
       c.fill();
@@ -276,6 +284,7 @@ export function mount(root) {
 
   function render2D(vals, which = []) {
     stageEl.replaceChildren(
+      hint,
       h(
         'div',
         { class: 'dice2d' },

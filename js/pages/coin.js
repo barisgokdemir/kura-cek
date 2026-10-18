@@ -1,6 +1,7 @@
 import { h, pageHeader, showResult, sound, sleep, reducedMotion } from '../ui.js';
 import { randomInt, seal } from '../rng.js';
 import * as store from '../store.js';
+import { icons } from '../icons.js';
 import { createStage, webglAvailable, canvasTexture, easeOutCubic } from '../three/stage.js';
 
 const MODES = [
@@ -21,10 +22,11 @@ export function mount(root) {
   let coins = [];
   let dead = false;
 
-  const stageEl = h('div', { class: 'stage', tabindex: '0', 'aria-label': 'Parayı atmak için dokun' });
+  const stageEl = h('div', { class: 'stage', tabindex: '0', role: 'button', 'aria-label': 'Parayı atmak için dokun' });
+  const hint = h('span', { class: 'stage-hint' }, 'Dokun · yukarı kaydır · salla');
   const resultSlot = h('div');
   const statsEl = h('p', { class: 'muted center' });
-  const throwBtn = h('button', { class: 'btn primary big', onclick: () => flip() }, 'Parayı at');
+  const throwBtn = h('button', { class: 'btn primary big', onclick: () => flip(), html: icons.coin }, 'Parayı at');
 
   const countOut = h('output', {}, '1');
   const countCtl = h(
@@ -60,7 +62,7 @@ export function mount(root) {
   );
 
   root.append(
-    pageHeader('Yazı-Tura', 'Dokun, yukarı kaydır ya da salla.'),
+    pageHeader('Yazı-Tura', 'İkili kararların klasiği.', 'coin'),
     stageEl,
     h('div', { class: 'controls' }, throwBtn),
     resultSlot,
@@ -71,7 +73,7 @@ export function mount(root) {
       h('summary', {}, 'Ayarlar'),
       h('label', { class: 'field' }, h('span', {}, 'Para sayısı'), countCtl),
       h('div', { class: 'field' }, h('span', {}, 'Seri'), modeCtl),
-      h('div', { class: 'field' }, h('span', {}, 'Yüz etiketleri'), h('div', { class: 'row' }, labelInputs)),
+      h('div', { class: 'field col' }, h('span', {}, 'Yüz etiketleri'), h('div', { class: 'fields-2' }, labelInputs)),
     ),
   );
 
@@ -95,7 +97,8 @@ export function mount(root) {
   const use3D = !reducedMotion() && webglAvailable();
 
   async function init3D() {
-    stage = await createStage(stageEl, { cameraPos: [0, 7.5, 5.5] });
+    stage = await createStage(stageEl, { cameraPos: [0, 7.5, 5.5], accent: 0xfbbf24 });
+    stageEl.append(hint);
     if (dead) return stage.dispose();
     rebuild();
   }
@@ -141,7 +144,8 @@ export function mount(root) {
       scene.add(coin);
       coins.push(coin);
     }
-    const scale = Math.max(1, cols * 0.85);
+    const aspect = stageEl.clientWidth / Math.max(1, stageEl.clientHeight);
+    const scale = Math.max(0.8, (cols * 0.7) / Math.min(1, aspect + 0.15));
     camera.position.set(0, 7.5 * scale, 5.5 * scale);
     camera.lookAt(0, 0, 0);
     stage.render();
@@ -179,6 +183,7 @@ export function mount(root) {
   // ---------- 2D (azaltılmış hareket / WebGL yok) ----------
   function render2D(results) {
     stageEl.replaceChildren(
+      hint,
       h(
         'div',
         { class: 'coins2d' },

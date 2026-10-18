@@ -2,6 +2,9 @@
 
 import * as store from './store.js';
 import { verify } from './rng.js';
+import { icons } from './icons.js';
+
+export const icon = (name, cls = '') => h('span', { class: `ico ${cls}`.trim(), html: icons[name], 'aria-hidden': 'true' });
 
 export function h(tag, attrs = {}, ...children) {
   const el = document.createElement(tag);
@@ -9,7 +12,12 @@ export function h(tag, attrs = {}, ...children) {
     if (v == null || v === false || k === 'value') continue;
     if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
     else if (k === 'class') el.className = v;
-    else if (k === 'style' && typeof v === 'object') Object.assign(el.style, v);
+    else if (k === 'style' && typeof v === 'object') {
+      for (const [prop, val] of Object.entries(v)) {
+        if (prop.startsWith('--')) el.style.setProperty(prop, val);
+        else el.style[prop] = val;
+      }
+    }
     else if (k === 'html') el.innerHTML = v;
     else if (k in el && typeof v !== 'string') el[k] = v;
     else el.setAttribute(k, v === true ? '' : v);
@@ -32,12 +40,13 @@ export function reducedMotion() {
   return matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-export function pageHeader(title, subtitle) {
+export function pageHeader(title, subtitle, iconName, backHref = '#/') {
   return h(
     'header',
     { class: 'page-head' },
-    h('a', { class: 'back', href: '#/', 'aria-label': 'Ana sayfa' }, '←'),
-    h('div', {}, h('h1', {}, title), subtitle && h('p', { class: 'muted' }, subtitle)),
+    h('a', { class: 'back', href: backHref, 'aria-label': 'Geri', html: icons.back }),
+    h('div', { class: 'grow' }, h('h1', {}, title), subtitle && h('p', { class: 'muted' }, subtitle)),
+    iconName && h('span', { class: 'head-icon', html: icons[iconName], 'aria-hidden': 'true' }),
   );
 }
 
@@ -108,7 +117,7 @@ export function confetti() {
   const W = (canvas.width = innerWidth * dpr);
   const H = (canvas.height = innerHeight * dpr);
   const c = canvas.getContext('2d');
-  const colors = ['#ff5a5f', '#ffb400', '#00a699', '#7b61ff', '#2bb3ff', '#ff8a00'];
+  const colors = ['#22d3ee', '#f472b6', '#4ade80', '#a78bfa', '#fbbf24', '#fb7185'];
   // Konfetinin konumları görseldir; sonuçla ilgisi yoktur.
   const rnd = Math.random;
   const parts = Array.from({ length: 140 }, () => ({
@@ -185,11 +194,17 @@ export function showResult(slot, { title, big, detail, record, onAgain, againLab
       h(
         'div',
         { class: 'row' },
-        onAgain && h('button', { class: 'btn primary', onclick: onAgain }, againLabel),
-        h('button', { class: 'btn', onclick: () => share(shareText) }, 'Paylaş'),
+        onAgain && h('button', { class: 'btn primary', onclick: onAgain, html: icons.again }, againLabel),
+        h('button', { class: 'btn', onclick: () => share(shareText), html: icons.share }, 'Paylaş'),
       ),
     ),
   );
+  // Küçük ekranlarda sonuç kartı görünür alana kaydırılır.
+  const card = slot.firstElementChild;
+  requestAnimationFrame(() => {
+    const r = card.getBoundingClientRect();
+    if (r.bottom > innerHeight - 80 || r.top < 0) card.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'nearest' });
+  });
   if (celebrate) {
     confetti();
     sound('win');

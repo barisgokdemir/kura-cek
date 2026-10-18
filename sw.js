@@ -1,6 +1,7 @@
 // Önbellek-öncelikli service worker: uygulama internetsiz çalışır.
 // Bir dosya değiştiğinde VERSION'ı arttır.
-const VERSION = 'kura-cek-v1';
+const VERSION = 'kura-cek-v2';
+const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 const ASSETS = [
   './',
   'index.html',
@@ -13,6 +14,7 @@ const ASSETS = [
   'js/rng.js',
   'js/store.js',
   'js/ui.js',
+  'js/icons.js',
   'js/three/stage.js',
   'js/pages/home.js',
   'js/pages/coin.js',
@@ -39,13 +41,16 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET' || new URL(e.request.url).origin !== location.origin) return;
+  if (e.request.method !== 'GET') return;
+  const url = new URL(e.request.url);
+  // Google Fonts da önbelleğe alınır; çevrimdışıyken sistem fontuna düşülür.
+  if (url.origin !== location.origin && !FONT_HOSTS.includes(url.hostname)) return;
   e.respondWith(
     caches.match(e.request, { ignoreSearch: true }).then(
       (hit) =>
         hit ||
         fetch(e.request).then((res) => {
-          if (res.ok) {
+          if (res.ok || res.type === 'opaque') {
             const copy = res.clone();
             caches.open(VERSION).then((c) => c.put(e.request, copy));
           }
