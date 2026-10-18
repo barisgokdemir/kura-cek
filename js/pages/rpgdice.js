@@ -2,6 +2,8 @@ import { h, pageHeader, showResult, sound, vibrate, sleep, reducedMotion, steppe
 import { randomInt, seal } from '../rng.js';
 import * as store from '../store.js';
 import { icons } from '../icons.js';
+import { createStage, webglAvailable, easeOutCubic } from '../three/stage.js';
+import { buildDie, faceQuaternion, percentileFaces } from '../three/polydice.js';
 
 export const DICE = [4, 6, 8, 10, 12, 20, 100];
 const MAX_DICE = 12;
@@ -66,7 +68,12 @@ export function mount(root) {
   let busy = false;
   let dead = false;
 
-  const tray = h('div', { class: 'rpg-tray', 'aria-live': 'polite' });
+  const use3D = !reducedMotion() && webglAvailable();
+  const tray = h('div', { class: use3D ? 'rpg-chips' : 'rpg-tray', 'aria-live': 'polite' });
+  const stageEl = h('div', { class: 'rpg-stage', hidden: !use3D, role: 'button', tabindex: '0', 'aria-label': 'Zarları atmak için dokun', onclick: () => roll() });
+  let stage = null;
+  let meshes = [];
+  let lastResults = null; // son atış: yeniden yerleşimde zarlar sonuçta kalsın
   const formula = h('p', { class: 'rpg-formula' });
   const resultSlot = h('div');
   const rollBtn = h('button', { class: 'btn primary big', onclick: () => roll(), html: icons.d20 }, 'Zarları at');
@@ -127,7 +134,7 @@ export function mount(root) {
 
   root.append(
     pageHeader('RPG Zar Atma', 'd4’ten d100’e; zar ekle, rengini seç, at.', 'd20'),
-    h('section', { class: 'rpg-board' }, tray, formula),
+    h('section', { class: 'rpg-board' }, stageEl, formula, tray),
     h('div', { class: 'controls row wrap', style: { justifyContent: 'center' } }, rollBtn, h('button', { class: 'btn', onclick: clear }, 'Temizle')),
     resultSlot,
     h(
@@ -184,6 +191,34 @@ export function mount(root) {
     formula.textContent = formulaText() + (cfg.adv !== 'normal' && cfg.pool.some((d) => d.sides === 20) ? ` · d20 ${cfg.adv === 'adv' ? 'avantajlı' : 'dezavantajlı'}` : '');
     if (!cfg.pool.length) {
       tray.replaceChildren(h('p', { class: 'rpg-empty' }, 'Aşağıdan zar ekle'));
+      if (use3D) build3D();
+      return;
+    }
+    if (use3D) {
+      tray.replaceChildren(
+        ...cfg.pool.map((d, i) =>
+          h(
+            'button',
+            {
+              class: 'rpg-chip',
+              'aria-label': `d${d.sides} zarını kaldır`,
+              onclick: () => {
+                if (busy) return;
+                cfg.pool.splice(i, 1);
+                persist();
+                renderTray();
+              },
+            },
+            h('span', { html: dieSvg(d.sides, null, d.color) }),
+            h('b', {}, `d${d.sides}`),
+            h('span', { class: 'rpg-chip-x', html: icons.cross }),
+          ),
+        ),
+      );
+      if (!results) {
+        lastResults = null;
+        build3D();
+      }
       return;
     }
     tray.replaceChildren(
@@ -221,9 +256,13 @@ export function mount(root) {
         { formula: formulaText(), adv: cfg.adv, dice: cfg.pool.map((d) => `d${d.sides}`) },
         results.map((r) => (r.rolls.length > 1 ? r.rolls : r.value)),
       );
-      renderTray();
-      const els = [...tray.children];
-      const slow = !reducedMotion();
+      if (use3D && stage) {
+        await roll3D(results);
+        if (dead) return;
+      }
+      renderTray(use3D ? results : undefined);
+      const els = use3D ? [] : [...tray.children];
+      const slow = !reducedMotion() && !use3D;
       // Zarlar ekranın dışındaysa önce görünür alana gel.
       const box = tray.getBoundingClientRect();
       if (box.top < 70 || box.bottom > innerHeight - 70) tray.scrollIntoView({ behavior: slow ? 'smooth' : 'auto', block: 'center' });
@@ -280,9 +319,173 @@ export function mount(root) {
     }
   }
 
+  // ---------- 3D ----------
+  // Havuzdaki zarlar sahnedeki parçalara açılır: d100 = onlar + birler zarı,
+  // avantajlı d20 = iki zar (düşen soluk).
+  function expand(results) {
+    const items = [];
+    cfg.pool.forEach((d, i) => {
+      const r = results?.[i];
+      const color = COLORS[d.color] || COLORS.obsidyen;
+      if (d.sides === 100) {
+        const pf = percentileFaces(r ? r.value : 100);
+        items.push({ kind: 'tens', color, value: pf.tens }, { kind: 'units', color, value: pf.units });
+      } else if (r && r.rolls.length > 1) {
+        const keep = r.rolls.indexOf(r.value);
+        r.rolls.forEach((v, k) => items.push({ kind: 'd20', color, value: v, dropped: k !== keep, crit: v === 20 && k === keep, fumble: v === 1 && k === keep }));
+      } else {
+        const v = r ? r.value : d.sides;
+        items.push({ kind: `d${d.sides}`, color, value: v, crit: r && d.sides === 20 && v === 20, fumble: r && d.sides === 20 && v === 1 });
+      }
+    });
+    return items;
+  }
+
+  function clearMeshes() {
+    for (const m of meshes) {
+      stage.scene.remove(m);
+      // Sayı dokuları önbellekte paylaşılır; yalnızca geometri ve malzeme bırakılır.
+      m.traverse((o) => {
+        o.geometry?.dispose();
+        o.material?.dispose();
+      });
+    }
+    meshes = [];
+  }
+
+  function layout(n) {
+    const w = stageEl.clientWidth || 340;
+    const cols = Math.max(1, Math.min(n, w < 480 ? 3 : 5));
+    const rows = Math.max(1, Math.ceil(n / cols));
+    const cell = w / cols;
+    stageEl.style.height = `${Math.round(Math.min(640, Math.max(220, rows * cell * 0.86 + 40)))}px`;
+    stage.resize();
+    const gap = 2.75;
+    const { camera } = stage;
+    // Kamera hafif eğik; uzak sıra küçülüp yukarı kaydığı için dikeyde pay bırakılır.
+    const halfW = (cols * gap) / 2 + 0.35;
+    const halfH = (rows * gap) / 2 + 0.9;
+    const t = Math.tan(((camera.fov / 2) * Math.PI) / 180);
+    const D = Math.max(halfW / (t * camera.aspect), halfH / t) * 1.02;
+    camera.position.set(0, D, D * 0.3);
+    camera.lookAt(0, 0, -0.35);
+    camera.updateMatrixWorld();
+    return Array.from({ length: n }, (_, i) => {
+      const r = Math.floor(i / cols);
+      const inRow = r === rows - 1 ? n - r * cols : cols;
+      return [((i % cols) - (inRow - 1) / 2) * gap, (r - (rows - 1) / 2) * gap];
+    });
+  }
+
+  function restQuaternion(die, value) {
+    const { THREE, camera } = stage;
+    const toCam = new THREE.Vector3().subVectors(camera.position, die.position).normalize();
+    const screenUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+    return faceQuaternion(THREE, die, value, toCam, screenUp);
+  }
+
+  function build3D(results) {
+    if (!stage) return [];
+    clearMeshes();
+    const items = expand(results);
+    const spots = layout(items.length);
+    items.forEach((it, i) => {
+      const die = buildDie(stage.THREE, it.kind, it.color);
+      die.position.set(spots[i][0], 1.2, spots[i][1]);
+      die.userData.item = it;
+      stage.scene.add(die);
+      die.quaternion.copy(restQuaternion(die, it.value));
+      meshes.push(die);
+      if (results) mark(die);
+    });
+    stage.render();
+    return items;
+  }
+
+  function resetMark(die) {
+    const { bodyMat, edges } = die.userData;
+    bodyMat.emissive.set(0x000000);
+    edges.material.color.set(die.userData.item.color.edge);
+    die.traverse((o) => o.material && (o.material.opacity = o === edges ? 0.9 : 1));
+  }
+
+  function mark(die) {
+    const it = die.userData.item;
+    const { bodyMat, edges } = die.userData;
+    if (it.dropped) {
+      die.traverse((o) => o.material && ((o.material.transparent = true), (o.material.opacity = 0.28)));
+    }
+    if (it.crit) {
+      bodyMat.emissive.set(0x6b4a00);
+      edges.material.color.set('#facc15');
+    }
+    if (it.fumble) {
+      bodyMat.emissive.set(0x5a0012);
+      edges.material.color.set('#fb7185');
+    }
+  }
+
+  async function roll3D(results) {
+    const { THREE } = stage;
+    lastResults = results;
+    build3D(results);
+    meshes.forEach((m) => resetMark(m));
+    const box = stageEl.getBoundingClientRect();
+    if (box.top < 70 || box.bottom > innerHeight - 70) stageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const plans = meshes.map((die, i) => {
+      const finalQ = die.quaternion.clone();
+      const final = new THREE.Euler().setFromQuaternion(finalQ);
+      const spin = () => randomInt(2, 4) * Math.PI * 2 * (randomInt(0, 1) ? 1 : -1);
+      const to = die.position.clone();
+      const from = to.clone().add(new THREE.Vector3(randomInt(-30, 30) / 10, 6 + randomInt(0, 20) / 10, -4 - randomInt(0, 20) / 10));
+      return { die, final, spins: [spin(), spin(), spin()], from, to, delay: i * 0.035 };
+    });
+    sound('roll');
+    let ticked = 0;
+    await stage.animate(1600, (t) => {
+      for (const p of plans) {
+        const k = Math.min(1, Math.max(0, (t - p.delay) / (1 - p.delay)));
+        const e = easeOutCubic(k);
+        p.die.position.x = p.from.x + (p.to.x - p.from.x) * e;
+        p.die.position.z = p.from.z + (p.to.z - p.from.z) * e;
+        // Düşüp sekerek durur.
+        p.die.position.y = p.to.y + p.from.y * (1 - k) ** 2 * Math.abs(Math.cos(k * Math.PI * 2.5));
+        p.die.rotation.set(p.final.x + p.spins[0] * (1 - e), p.final.y + p.spins[1] * (1 - e), p.final.z + p.spins[2] * (1 - e), p.final.order);
+      }
+      const bounce = Math.floor(t * 5);
+      if (bounce > ticked && t < 0.9) {
+        ticked = bounce;
+        sound('tick');
+      }
+    });
+    for (const p of plans) {
+      p.die.position.copy(p.to);
+      p.die.rotation.copy(p.final);
+      mark(p.die);
+    }
+    stage.render();
+  }
+
+  async function init3D() {
+    stage = await createStage(stageEl, { cameraPos: [0, 12, 4], fov: 34, accent: 0xff6b3d });
+    if (dead) return stage.dispose();
+    renderTray();
+    const ro = new ResizeObserver(() => !busy && build3D(lastResults));
+    ro.observe(stageEl);
+    stage.onDispose = () => ro.disconnect();
+  }
+
   setColor(cfg.color);
   renderTray();
+  if (use3D) {
+    init3D().catch(() => {
+      // WebGL açılamazsa 2D çizime dön.
+      stageEl.hidden = true;
+    });
+  }
   return () => {
     dead = true;
+    stage?.onDispose?.();
+    stage?.dispose();
   };
 }

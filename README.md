@@ -25,7 +25,7 @@
 | İskambil Kartı | Mühürlü karıştırılmış deste (isteğe bağlı joker); kart çek ya da herkes çeksin, yüksek kart kazansın |
 | Nöbet Sırası | Her gün / hafta içi / haftalık; herkese eşit nöbet, tarihlere dağıtılmış, yazdırılabilir |
 | Oturma Planı | Sınıf sıraları (ikişerli) ya da masalar; yan yana oturmaması gerekenleri ayırır |
-| RPG Zar Atma | d4, d6, d8, d10, d12, d20, d100 karışık havuz; 7 zar rengi, değiştirici, d20 avantaj/dezavantaj, kritik vurgusu |
+| RPG Zar Atma | Gerçek 3D d4, d6, d8, d10, d12, d20 ve yüzdelik d100 (00–90 + 0–9); her yüzde okunaklı sayı, sonuç yüzü kameraya döner; 7 renk, değiştirici, d20 avantaj/dezavantaj, kritik vurgusu |
 | Sayışmaca | 22 geleneksel tekerleme hece hece sayar; son hece ebe ya da eleme; başlangıç kişisi rastgele ve mühürlü |
 
 Tüm ikonlar SVG; emoji kullanılmaz, her cihazda aynı görünür.

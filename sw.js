@@ -1,6 +1,6 @@
 // Önbellek-öncelikli service worker: uygulama internetsiz çalışır.
 // Bir dosya değiştiğinde VERSION'ı arttır.
-const VERSION = 'kura-cek-v9';
+const VERSION = 'kura-cek-v10';
 const FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 const ASSETS = [
   './',
@@ -34,6 +34,7 @@ const ASSETS = [
   'js/pages/rpgdice.js',
   'js/data/tekerlemeler.js',
   'js/three/stage.js',
+  'js/three/polydice.js',
   'js/pages/home.js',
   'js/pages/coin.js',
   'js/pages/dice.js',
