@@ -66,5 +66,6 @@ export const icons = {
   calendar: svg(`<rect x="8" y="12" width="48" height="42" rx="6"/><path d="M8 24h48M20 6v12M44 6v12"/><circle cx="22" cy="36" r="3" fill="currentColor" stroke="none"/><circle cx="32" cy="36" r="3" fill="currentColor" stroke="none"/><circle cx="42" cy="44" r="3" fill="#f472b6" stroke="none"/>`),
   seats: svg(`<rect x="22" y="22" width="20" height="20" rx="4"/><circle cx="32" cy="11" r="5"/><circle cx="32" cy="53" r="5"/><circle cx="11" cy="32" r="5"/><circle cx="53" cy="32" r="5" fill="#f472b6" stroke="#f472b6"/>`),
   chant: svg(`<path d="M10 14h44v28H30l-12 10v-10h-8z"/><circle cx="22" cy="28" r="2.6" fill="currentColor" stroke="none"/><circle cx="32" cy="28" r="2.6" fill="currentColor" stroke="none"/><circle cx="42" cy="28" r="2.6" fill="#f472b6" stroke="none"/>`),
+  d20: svg(`<path d="M32 4l24 14v28L32 60 8 46V18z"/><path d="M32 16l14 24H18z M32 4v12M56 18L32 16M56 18L46 40M56 46L46 40M32 60L46 40M32 60L18 40M8 46L18 40M8 18L18 40M8 18L32 16" stroke-width="2" opacity=".7"/><path d="M28 30h8l-6 7h6" stroke="#f472b6" stroke-width="2.5"/>`),
   shuffle: svg(`<path d="M8 20h10c10 0 18 24 28 24h10M8 44h10c4 0 7-3 10-8M36 28c3-5 6-8 10-8h10"/><path d="M50 14l6 6-6 6M50 38l6 6-6 6"/>`),
 };

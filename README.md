@@ -18,13 +18,14 @@
 | Takım Kurucu | N takım; seviye verilirse yılan sırasıyla dengeli dağıtım |
 | İsim-Şehir | Türk alfabesi, zor harfleri çıkarma, tekrar etmeme, geri sayım |
 | Hediyeleşme | Kısıtlı eşleşme (kendini/eşini çekmeme); elden ele ya da kişiye özel link |
-| Taş-Kağıt-Makas | Uygulamaya karşı (uygulamanın hamlesi oyuncu seçmeden önce mühürlenir) ya da iki kişi aynı ekranda |
-| Sihirli Küre | Küre içindeki 3D tamburda cevaplar döner ve önceden seçilene iner; klasik 20 cevap ya da Evet/Hayır/Belki |
+| Taş-Kağıt-Makas | Çizim eller, sallanma ve çarpışma animasyonu, ifadeli robot rakip; tek el, 3'te 2, 5'te 3; robotun hamlesi önceden mühürlenir |
+| Sihirli Küre | Küre içinde cevaplar yatay atlıkarıncada hızla döner ve önceden seçilene iner; klasik 20 cevap ya da Evet/Hayır/Belki |
 | Rastgele Sayı | Aralık, adet, tekrarsız, sıralı; 1–6, 1–100, loto kalıpları |
 | Kazı Kazan | Ödüller kartlara karıştırılır; her kişi kendi linkini açıp parmağıyla kazır |
 | İskambil Kartı | Mühürlü karıştırılmış deste (isteğe bağlı joker); kart çek ya da herkes çeksin, yüksek kart kazansın |
 | Nöbet Sırası | Her gün / hafta içi / haftalık; herkese eşit nöbet, tarihlere dağıtılmış, yazdırılabilir |
 | Oturma Planı | Sınıf sıraları (ikişerli) ya da masalar; yan yana oturmaması gerekenleri ayırır |
+| RPG Zar Atma | d4, d6, d8, d10, d12, d20, d100 karışık havuz; 7 zar rengi, değiştirici, d20 avantaj/dezavantaj, kritik vurgusu |
 | Sayışmaca | 22 geleneksel tekerleme hece hece sayar; son hece ebe ya da eleme; başlangıç kişisi rastgele ve mühürlü |
 
 Tüm ikonlar SVG; emoji kullanılmaz, her cihazda aynı görünür.

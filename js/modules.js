@@ -19,6 +19,7 @@ export const MODULES = [
   { route: 'iskambil', title: 'İskambil Kartı', icon: 'cards', color: 'var(--azure)', desc: 'Karıştırılmış desteden kart çek ya da herkes çeksin, yüksek kart kazansın.' },
   { route: 'nobet-sirasi', title: 'Nöbet Sırası', icon: 'calendar', color: 'var(--coral)', desc: 'Nöbet, temizlik, çay sırası: herkese eşit gün, tarihlere dağıtılmış.' },
   { route: 'oturma-plani', title: 'Oturma Planı', icon: 'seats', color: 'var(--violet)', desc: 'Sınıf sıraları ya da masalar; yan yana oturmasın dediklerini ayırır.' },
+  { route: 'rpg-zar', title: 'RPG Zar Atma', icon: 'd20', color: 'var(--ember)', desc: 'd4, d6, d8, d10, d12, d20, d100. Zar rengini seç, avantajla at, kritiği yakala.' },
   { route: 'sayismaca', title: 'Sayışmaca', icon: 'chant', color: 'var(--candy)', desc: 'Portakalı soydum, o piti piti… Tekerleme hece hece sayar, ebe çıkar.' },
 ];
 

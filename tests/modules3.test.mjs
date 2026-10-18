@@ -67,3 +67,19 @@ test('iskambil destesi', () => {
   assert.equal(cardName('H13'), 'Kupa Papaz');
   assert.equal(cardName('C1'), 'Sinek As');
 });
+
+import { rollPool, DICE, dieSvg, COLORS } from '../js/pages/rpgdice.js';
+test('RPG zar: aralıklar, avantaj/dezavantaj', () => {
+  assert.deepEqual(DICE, [4, 6, 8, 10, 12, 20, 100]);
+  for (let k = 0; k < 300; k++) {
+    const pool = DICE.map((sides) => ({ sides, color: 'obsidyen' }));
+    rollPool(pool, 'normal').forEach((r) => assert.ok(r.value >= 1 && r.value <= r.sides && r.rolls.length === 1));
+    const [adv] = rollPool([{ sides: 20 }], 'adv');
+    assert.equal(adv.value, Math.max(...adv.rolls));
+    const [dis] = rollPool([{ sides: 20 }], 'dis');
+    assert.equal(dis.value, Math.min(...dis.rolls));
+    const [d6] = rollPool([{ sides: 6 }], 'adv');
+    assert.equal(d6.rolls.length, 1); // avantaj yalnızca d20'ye uygulanır
+  }
+  for (const k of Object.keys(COLORS)) for (const s of DICE) assert.match(dieSvg(s, s, k), /<svg/);
+});

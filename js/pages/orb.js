@@ -3,7 +3,7 @@ import { pick, randomInt, shuffle, seal } from '../rng.js';
 import * as store from '../store.js';
 import { icons } from '../icons.js';
 import { onShake } from './coin.js';
-import { easeOutQuart } from '../three/stage.js';
+import { easeOutCubic } from '../three/stage.js';
 
 // Klasik 20 cevap: 10 olumlu, 5 belirsiz, 5 olumsuz.
 export const ANSWERS = {
@@ -19,8 +19,8 @@ export const ANSWERS = {
   ],
 };
 
-// Tamburda 12 yüz var: hedef cevap + diğer cevaplardan karışık dolgu.
-const FACES = 12;
+// Yatay atlıkarınca: 8 yüz, hedef cevap + diğer cevaplardan karışık dolgu.
+const FACES = 8;
 const STEP = 360 / FACES;
 
 export function mount(root) {
@@ -89,15 +89,23 @@ export function mount(root) {
     const faces = Array.from({ length: FACES }, (_, i) => (target && i === targetFace ? target : others[i % others.length] || pool[0]));
     drum.replaceChildren(
       ...faces.map(([text, tone], i) =>
-        h('div', { class: `orb-face t-${tone}`, style: { transform: `rotateX(${-i * STEP}deg) translateZ(var(--r))` } }, h('span', {}, text)),
+        h('div', { class: `orb-face t-${tone}`, style: { transform: `rotateY(${i * STEP}deg) translateZ(var(--r))` } }, h('span', {}, text)),
       ),
     );
     return faces;
   }
 
+  // Atlıkarınca yarıçapı: yüz genişliğine göre (r = w/2 / tan(π/n)).
+  const fitRadius = () => {
+    const w = windowEl.clientWidth * 0.84;
+    orbEl.style.setProperty('--r', `${Math.round(w / 2 / Math.tan(Math.PI / FACES)) + 2}px`);
+  };
+  const ro = new ResizeObserver(fitRadius);
+  ro.observe(windowEl);
+
   const setAngle = (a) => {
     angle = a;
-    drum.style.transform = `translateZ(calc(var(--r) * -1)) rotateX(${a}deg)`;
+    drum.style.transform = `translateZ(calc(var(--r) * -1)) rotateY(${a}deg)`;
   };
 
   // Boşta tambur ağır ağır salınır.
@@ -107,7 +115,7 @@ export function mount(root) {
     const base = angle;
     const frame = (now) => {
       if (dead || busy) return;
-      setAngle(base + Math.sin((now - t0) / 1400) * 6);
+      setAngle(base + Math.sin((now - t0) / 1300) * 9);
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
@@ -127,12 +135,12 @@ export function mount(root) {
       const face = randomInt(0, FACES - 1);
       fillDrum(target, face);
 
-      // Yüz i, tambur rotateX(i·STEP) iken öne gelir. Birkaç tam tur atıp hedefe yavaşlayarak iner.
+      // Yüz i, tambur rotateY(-i·STEP) iken öne gelir. Hızla birkaç tur atıp hedefte durur.
       const from = angle;
-      const goal = face * STEP;
-      const turns = reducedMotion() ? 0 : 4 + randomInt(0, 2);
-      const to = from + turns * 360 + ((((goal - from) % 360) + 360) % 360);
-      const duration = reducedMotion() ? 250 : 3200;
+      const goal = -face * STEP;
+      const turns = reducedMotion() ? 0 : 5 + randomInt(0, 2);
+      const to = from - turns * 360 - ((((from - goal) % 360) + 360) % 360);
+      const duration = reducedMotion() ? 250 : 1900;
 
       orbEl.classList.remove('shake');
       void orbEl.offsetWidth;
@@ -146,9 +154,9 @@ export function mount(root) {
         const frame = (now) => {
           if (dead) return resolve();
           const t = Math.min(1, (now - t0) / duration);
-          setAngle(from + (to - from) * easeOutQuart(t));
+          setAngle(from + (to - from) * easeOutCubic(t));
           // Dönerken bulanıklık hızla orantılı; yavaşladıkça yazılar netleşir.
-          drum.style.filter = `blur(${((1 - t) ** 2 * 2.4).toFixed(2)}px)`;
+          drum.style.filter = `blur(${((1 - t) ** 2 * 3).toFixed(2)}px)`;
           const f = Math.round(angle / STEP);
           if (f !== lastFace) {
             lastFace = f;
@@ -183,6 +191,7 @@ export function mount(root) {
   return () => {
     dead = true;
     cancelAnimationFrame(raf);
+    ro.disconnect();
     stopShake();
   };
 }

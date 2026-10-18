@@ -22,6 +22,7 @@ import * as cards from './pages/cards.js';
 import * as duty from './pages/duty.js';
 import * as seating from './pages/seating.js';
 import * as counting from './pages/counting.js';
+import * as rpgdice from './pages/rpgdice.js';
 import { COLORS } from './modules.js';
 
 // Hash tabanlı yönlendirme: GitHub Pages'te 404 sorunu çıkarmaz.
@@ -44,6 +45,7 @@ const ROUTES = {
   iskambil: { page: cards, title: 'İskambil Kartı', recent: true },
   'nobet-sirasi': { page: duty, title: 'Nöbet Sırası', recent: true },
   'oturma-plani': { page: seating, title: 'Oturma Planı', recent: true },
+  'rpg-zar': { page: rpgdice, title: 'RPG Zar Atma', recent: true },
   sayismaca: { page: counting, title: 'Sayışmaca', recent: true },
   gecmis: { page: history, title: 'Geçmiş' },
   hakkinda: { page: about, title: 'Hakkında' },
