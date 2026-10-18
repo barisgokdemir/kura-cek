@@ -2776,29 +2776,25 @@ h2.gift-who {
 .orb-drum-wrap {
   position: absolute;
   inset: 0;
-  perspective: 300px;
   z-index: 1;
 }
 .orb-drum {
   position: absolute;
   inset: 0;
-  transform-style: preserve-3d;
-  will-change: transform;
 }
 .orb-face {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: var(--fw, 72px);
-  height: calc(var(--fw, 72px) * 0.9);
-  margin: calc(var(--fw, 72px) * -0.42) 0 0 calc(var(--fw, 72px) * -0.5);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform-style: preserve-3d;
-  opacity: 0.9;
+  width: var(--fw, 48px);
+  height: calc(var(--fw, 48px) * 0.9);
+  margin: calc(var(--fw, 48px) * -0.42) 0 0 calc(var(--fw, 48px) * -0.5);
+  opacity: 0.92;
+  will-change: transform;
   transition: opacity 0.4s;
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 55%));
 }
-/* Üçgen: dönerken küçük, durunca öne doğru büyür (yüzün kendi dönüşü bozulmaz). */
+/* Üçgen: yörüngede küçük; seçilen merkeze gelip büyür (JS). */
 .orb-tri {
   width: 100%;
   height: 100%;
@@ -2807,8 +2803,7 @@ h2.gift-who {
   padding: 0 17% 42%;
   clip-path: polygon(50% 100%, 0 0, 100% 0);
   background: linear-gradient(180deg, color-mix(in srgb, var(--mc) 80%, #fff), color-mix(in srgb, var(--mc) 70%, #000));
-  transform-origin: 50% 38%;
-  transition: transform 0.55s cubic-bezier(0.2, 1.5, 0.4, 1), background 0.4s;
+  transition: background 0.4s;
 }
 .orb-face span {
   font: 800 calc(var(--fw, 72px) * 0.063) / 1.12 var(--font-head);
@@ -2827,9 +2822,6 @@ h2.gift-who {
 .orb-window.landed .orb-face.front {
   opacity: 1;
   z-index: 2;
-}
-.orb-window.landed .orb-face.front .orb-tri {
-  transform: translateZ(10px) scale(2);
 }
 .orb-window.landed.yes .orb-face.front .orb-tri {
   background: linear-gradient(180deg, #bbf7d0, var(--green));

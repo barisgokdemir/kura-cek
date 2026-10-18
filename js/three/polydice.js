@@ -76,7 +76,7 @@ function d10Geometry(THREE, radius) {
   }
   const geo = new THREE.BufferGeometry();
   geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  geo.scale(radius, radius * 0.92, radius);
+  geo.scale(radius, radius * 1.08, radius);
   geo.computeVertexNormals();
   return geo;
 }
@@ -99,7 +99,7 @@ function baseGeometry(THREE, sides) {
 }
 
 // Üçgenleri normale göre gruplayıp yüzleri çıkarır: merkez, normal, "yukarı" yönü ve boyut.
-function extractFaces(THREE, geo, square) {
+function extractFaces(THREE, geo, square, kite) {
   const V = THREE.Vector3;
   const p = geo.attributes.position.array;
   const groups = new Map();
@@ -108,21 +108,28 @@ function extractFaces(THREE, geo, square) {
     const b = new V(p[i + 3], p[i + 4], p[i + 5]);
     const c = new V(p[i + 6], p[i + 7], p[i + 8]);
     const n = new V().subVectors(b, a).cross(new V().subVectors(c, a)).normalize();
-    const key = `${n.x.toFixed(2)},${n.y.toFixed(2)},${n.z.toFixed(2)}`;
-    if (!groups.has(key)) groups.set(key, { normal: n, verts: [] });
-    const g = groups.get(key);
+    // Aynı düzlemdeki üçgenler normal yönü neredeyse aynı olanlardır (yuvarlamalı anahtar sınırda bölünür).
+    let g = [...groups.values()].find((x) => x.normal.dot(n) > 0.999);
+    if (!g) groups.set(groups.size, (g = { normal: n, verts: [] }));
     for (const v of [a, b, c]) if (!g.verts.some((w) => w.distanceTo(v) < 1e-4)) g.verts.push(v);
   }
   return [...groups.values()].map(({ normal, verts }) => {
     const center = verts.reduce((s, v) => s.add(v), new V()).divideScalar(verts.length);
     // Yukarı: merkezden en uzak köşeye (üçgen ve uçurtmada sivri uç yukarı bakar).
-    const far = verts.reduce((m, v) => (v.distanceTo(center) > m.distanceTo(center) ? v : m), verts[0]);
+    // Uçurtma yüzde yukarı her zaman kutup ucudur (|y| en büyük köşe); yoksa en uzak köşe.
+    const far = kite
+      ? verts.reduce((m, v) => (Math.abs(v.y) > Math.abs(m.y) ? v : m), verts[0])
+      : verts.reduce((m, v) => (v.distanceTo(center) > m.distanceTo(center) ? v : m), verts[0]);
     // Küpte köşe yerine kenara paralel yukarı: sayı yatık durmaz.
     const up = square ? (Math.abs(normal.y) > 0.9 ? new V(0, 0, -1) : new V(0, 1, 0)) : new V().subVectors(far, center);
     up.sub(normal.clone().multiplyScalar(up.dot(normal))).normalize();
     const circum = far.distanceTo(center);
+    // Yüzün sayının yazıldığı yükseklikteki genişliği: sayı komşu yüze taşmasın.
+    const across = new V().crossVectors(up, normal).normalize();
+    const xs = verts.map((v) => new V().subVectors(v, center).dot(across));
+    const width = Math.max(...xs) - Math.min(...xs);
     const inradius = square ? circum * 0.707 : verts.length === 4 ? circum * 0.62 : circum * Math.cos(Math.PI / verts.length);
-    return { normal, center, up, size: inradius };
+    return { normal, center, up, size: inradius, width };
   });
 }
 
@@ -157,7 +164,7 @@ function numberFaces(faces) {
 export function buildDie(THREE, kind, color) {
   const sides = kind === 'tens' || kind === 'units' ? 10 : +kind.slice(1);
   const geo = baseGeometry(THREE, sides);
-  const faces = extractFaces(THREE, geo, sides === 6);
+  const faces = extractFaces(THREE, geo, sides === 6, sides === 10);
   numberFaces(faces);
   const label = (v) => (kind === 'tens' ? String((v % 10) * 10).padStart(2, '0') : kind === 'units' ? String(v % 10) : String(v));
 
@@ -174,12 +181,16 @@ export function buildDie(THREE, kind, color) {
   const body = new THREE.Mesh(geo, bodyMat);
   body.castShadow = true;
   group.add(body);
-  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 10), new THREE.LineBasicMaterial({ color: color.edge, transparent: true, opacity: 0.9 }));
+  // d100 çiftinde onlar zarı altın kenarla ayrışır.
+  const edgeColor = kind === 'tens' ? '#facc15' : color.edge;
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 10), new THREE.LineBasicMaterial({ color: edgeColor, transparent: true, opacity: 0.9 }));
   group.add(edges);
 
   for (const f of faces) {
     const tex = numberTexture(THREE, label(f.value), color.text, dark ? '#05050a' : null);
-    const s = f.size * (sides === 4 ? 1.3 : sides === 20 ? 1.75 : sides === 8 ? 1.6 : sides === 10 ? 1.3 : sides === 12 ? 1.55 : 1.35);
+    let s = f.size * (sides === 4 ? 1.3 : sides === 20 ? 1.75 : sides === 8 ? 1.6 : sides === 10 ? 1.42 : sides === 12 ? 1.55 : 1.35);
+    // Uçurtma yüzler dar: iki haneli onlar zarında sayı yüz genişliğine sığdırılır.
+    if (sides === 10) s = Math.min(s, f.width * (kind === 'tens' ? 0.78 : 0.7));
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(s, s),
       new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }),
@@ -193,8 +204,15 @@ export function buildDie(THREE, kind, color) {
     group.add(plane);
     f.plane = plane;
   }
-  group.userData = { faces, body, edges, bodyMat, kind };
+  group.userData = { faces, body, edges, bodyMat, kind, edgeColor };
   return group;
+}
+
+// Sonuç yüzünün sayısı parlak kalır, diğer yüzlerinki söner: hangi sayının geldiği tek bakışta okunur.
+export function highlightFace(die, value) {
+  for (const f of die.userData.faces) {
+    f.plane.material.opacity = value == null || f.value === value ? 1 : 0.32;
+  }
 }
 
 // Sonuç yüzünü bakış yönüne çeviren ve sayıyı ekranda dik tutan dönüş.

@@ -19,16 +19,18 @@ export const ANSWERS = {
   ],
 };
 
-// Pencerenin içinde dönen küçük bir küre gibi: 8 yüz, yarıçap pencereye göre.
+// Üçgenler pencerenin içinde bir çember üzerinde dolaşır; kendi etraflarında dönmez, hep dik durur.
 // Hedef cevap + diğer cevaplardan karışık dolgu.
-const FACES = 8;
-const STEP = 360 / FACES;
+const FACES = 6;
+const STEP = (Math.PI * 2) / FACES;
+const TOP = -Math.PI / 2; // ekranda tepe noktası
 
 export function mount(root) {
   let mode = store.get().orbMode || 'classic';
   let busy = false;
   let dead = false;
-  let angle = 0; // tamburun mevcut dönüşü (derece)
+  let angle = 0; // çemberin mevcut dönüşü (radyan)
+  let geo = { R: 50, land: 2.6 };
   let raf = null;
 
   const question = h('input', { type: 'text', class: 'orb-q', maxLength: 120, placeholder: 'Sorunu yaz (isteğe bağlı)', 'aria-label': 'Soru' });
@@ -90,25 +92,35 @@ export function mount(root) {
     const faces = Array.from({ length: FACES }, (_, i) => (target && i === targetFace ? target : others[i % others.length] || pool[0]));
     drum.replaceChildren(
       ...faces.map(([text, tone], i) =>
-        h('div', { class: `orb-face t-${tone}`, style: { transform: `rotateY(${i * STEP}deg) translateZ(var(--r))` } }, h('div', { class: 'orb-tri' }, h('span', {}, text))),
+        h('div', { class: `orb-face t-${tone}` }, h('div', { class: 'orb-tri' }, h('span', {}, text))),
       ),
     );
+    setAngle(angle);
     return faces;
   }
 
-  // Yarıçap pencere yarıçapına yakın; yüz genişliği yarıçaptan çıkar (w = 2·r·tan(π/n)).
-  // Böylece yüzler dairenin içinde döner, yanlara gittikçe daralıp kenarda kaybolur.
+  // Yörünge yarıçapı ve üçgen boyu pencereye göre; durunca seçilen üçgen pencerenin %83'üne büyür.
   const fitRadius = () => {
-    const r = windowEl.clientWidth * 0.5;
-    orbEl.style.setProperty('--r', `${Math.round(r)}px`);
-    orbEl.style.setProperty('--fw', `${Math.round(2 * r * Math.tan(Math.PI / FACES))}px`);
+    const W = windowEl.clientWidth || 160;
+    const fw = W * 0.3;
+    geo = { R: W * 0.29, land: (W * 0.83) / fw };
+    orbEl.style.setProperty('--fw', `${Math.round(fw)}px`);
+    if (!windowEl.classList.contains('landed')) setAngle(angle);
   };
   const ro = new ResizeObserver(fitRadius);
   ro.observe(windowEl);
 
+  // Her üçgen çemberdeki yerine taşınır; üstteki küçülür, alttaki büyür (hafif derinlik).
   const setAngle = (a) => {
     angle = a;
-    drum.style.transform = `translateZ(calc(var(--r) * -1)) rotateY(${a}deg)`;
+    [...drum.children].forEach((el, i) => {
+      const t = a + i * STEP;
+      const x = Math.cos(t) * geo.R;
+      const y = Math.sin(t) * geo.R * 0.86;
+      const depth = 0.86 + 0.14 * ((Math.sin(t) + 1) / 2);
+      el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) scale(${depth.toFixed(3)})`;
+      el.style.zIndex = String(Math.round(depth * 100));
+    });
   };
 
   // Boşta tambur ağır ağır salınır.
@@ -118,7 +130,7 @@ export function mount(root) {
     const base = angle;
     const frame = (now) => {
       if (dead || busy) return;
-      setAngle(base + Math.sin((now - t0) / 1300) * 9);
+      setAngle(base + (now - t0) / 4000);
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
@@ -130,6 +142,7 @@ export function mount(root) {
     cancelAnimationFrame(raf);
     resultSlot.replaceChildren();
     windowEl.classList.remove('idle', 'landed', 'yes', 'no', 'maybe');
+    [...drum.children].forEach((el) => (el.style.transition = ''));
     try {
       const target = pick(ANSWERS[mode]);
       const [text, tone] = target;
@@ -138,12 +151,13 @@ export function mount(root) {
       const face = randomInt(0, FACES - 1);
       fillDrum(target, face);
 
-      // Yüz i, tambur rotateY(-i·STEP) iken öne gelir. Hızla birkaç tur atıp hedefte durur.
+      // Üçgen i, çember açısı TOP - i·STEP iken tepeye gelir. Hızla birkaç tur atıp orada durur.
+      const TAU = Math.PI * 2;
       const from = angle;
-      const goal = -face * STEP;
-      const turns = reducedMotion() ? 0 : 5 + randomInt(0, 2);
-      const to = from - turns * 360 - ((((from - goal) % 360) + 360) % 360);
-      const duration = reducedMotion() ? 250 : 1900;
+      const goal = TOP - face * STEP;
+      const turns = reducedMotion() ? 0 : 4 + randomInt(0, 2);
+      const to = from + turns * TAU + ((((goal - from) % TAU) + TAU) % TAU);
+      const duration = reducedMotion() ? 250 : 2000;
 
       orbEl.classList.remove('shake');
       void orbEl.offsetWidth;
@@ -151,7 +165,7 @@ export function mount(root) {
       windowEl.classList.add('spinning');
       vibrate(30);
 
-      let lastFace = Math.round(from / STEP);
+      let lastFace = Math.floor(from / STEP);
       await new Promise((resolve) => {
         const t0 = performance.now();
         const frame = (now) => {
@@ -160,7 +174,7 @@ export function mount(root) {
           setAngle(from + (to - from) * easeOutCubic(t));
           // Dönerken bulanıklık hızla orantılı; yavaşladıkça yazılar netleşir.
           drum.style.filter = `blur(${((1 - t) ** 2 * 3).toFixed(2)}px)`;
-          const f = Math.round(angle / STEP);
+          const f = Math.floor(angle / STEP);
           if (f !== lastFace) {
             lastFace = f;
             sound('tick');
@@ -171,10 +185,15 @@ export function mount(root) {
         requestAnimationFrame(frame);
       });
       if (dead) return;
-      setAngle(((to % 360) + 360) % 360);
+      setAngle(to % (Math.PI * 2));
       drum.style.filter = '';
       windowEl.classList.remove('spinning');
-      drum.children[face].classList.add('front');
+      // Seçilen üçgen tepeden merkeze kayıp büyür.
+      const front = drum.children[face];
+      front.classList.add('front');
+      front.style.transition = reducedMotion() ? 'none' : 'transform 0.6s cubic-bezier(0.2, 1.4, 0.4, 1)';
+      front.style.zIndex = '200';
+      requestAnimationFrame(() => (front.style.transform = `translate(0px, 0px) scale(${geo.land.toFixed(3)})`));
       windowEl.classList.add('landed', tone);
       answerLive.textContent = text;
       sound(tone === 'no' ? 'lose' : tone === 'yes' ? 'win' : 'land');
@@ -187,8 +206,8 @@ export function mount(root) {
     }
   }
 
+  fitRadius();
   fillDrum(null);
-  setAngle(0);
   idle();
   const stopShake = onShake(ask);
   return () => {

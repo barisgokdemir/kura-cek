@@ -3,7 +3,7 @@ import { randomInt, seal } from '../rng.js';
 import * as store from '../store.js';
 import { icons } from '../icons.js';
 import { createStage, webglAvailable, easeOutCubic } from '../three/stage.js';
-import { buildDie, faceQuaternion, percentileFaces } from '../three/polydice.js';
+import { buildDie, faceQuaternion, percentileFaces, highlightFace } from '../three/polydice.js';
 
 export const DICE = [4, 6, 8, 10, 12, 20, 100];
 const MAX_DICE = 12;
@@ -329,7 +329,7 @@ export function mount(root) {
       const color = COLORS[d.color] || COLORS.obsidyen;
       if (d.sides === 100) {
         const pf = percentileFaces(r ? r.value : 100);
-        items.push({ kind: 'tens', color, value: pf.tens }, { kind: 'units', color, value: pf.units });
+        items.push({ kind: 'tens', color, value: pf.tens, pair: 'a' }, { kind: 'units', color, value: pf.units, pair: 'b' });
       } else if (r && r.rolls.length > 1) {
         const keep = r.rolls.indexOf(r.value);
         r.rolls.forEach((v, k) => items.push({ kind: 'd20', color, value: v, dropped: k !== keep, crit: v === 20 && k === keep, fumble: v === 1 && k === keep }));
@@ -353,9 +353,11 @@ export function mount(root) {
     meshes = [];
   }
 
-  function layout(n) {
+  function layout(n, hasPairs) {
     const w = stageEl.clientWidth || 340;
-    const cols = Math.max(1, Math.min(n, w < 480 ? 3 : 5));
+    let cols = Math.max(1, Math.min(n, w < 480 ? 3 : 5));
+    // d100 çiftleri satır sonunda bölünmesin: çift varsa sütun sayısı çift olur.
+    if (hasPairs && cols % 2) cols = cols === 1 ? 2 : n > cols ? cols + 1 : cols - 1 || 2;
     const rows = Math.max(1, Math.ceil(n / cols));
     const cell = w / cols;
     stageEl.style.height = `${Math.round(Math.min(640, Math.max(220, rows * cell * 0.86 + 40)))}px`;
@@ -387,8 +389,17 @@ export function mount(root) {
   function build3D(results) {
     if (!stage) return [];
     clearMeshes();
-    const items = expand(results);
-    const spots = layout(items.length);
+    // d100 çiftleri öne alınır ve çift sütunlu yerleşimde hep aynı satırda yan yana durur.
+    const all = expand(results);
+    const items = [...all.filter((it) => it.pair), ...all.filter((it) => !it.pair)];
+    const spots = layout(items.length, items.some((it) => it.pair));
+    // d100 çifti aynı satırdaysa birbirine yaklaşır: tek bir yüzdelik zar gibi okunur.
+    items.forEach((it, i) => {
+      if (it.pair === 'a' && items[i + 1]?.pair === 'b' && spots[i][1] === spots[i + 1][1]) {
+        spots[i][0] += 0.32;
+        spots[i + 1][0] -= 0.32;
+      }
+    });
     items.forEach((it, i) => {
       const die = buildDie(stage.THREE, it.kind, it.color);
       die.position.set(spots[i][0], 1.2, spots[i][1]);
@@ -396,6 +407,7 @@ export function mount(root) {
       stage.scene.add(die);
       die.quaternion.copy(restQuaternion(die, it.value));
       meshes.push(die);
+      highlightFace(die, results ? it.value : null);
       if (results) mark(die);
     });
     stage.render();
@@ -405,15 +417,16 @@ export function mount(root) {
   function resetMark(die) {
     const { bodyMat, edges } = die.userData;
     bodyMat.emissive.set(0x000000);
-    edges.material.color.set(die.userData.item.color.edge);
-    die.traverse((o) => o.material && (o.material.opacity = o === edges ? 0.9 : 1));
+    edges.material.color.set(die.userData.edgeColor);
+    die.userData.body.material.opacity = 1;
+    edges.material.opacity = 0.9;
   }
 
   function mark(die) {
     const it = die.userData.item;
     const { bodyMat, edges } = die.userData;
     if (it.dropped) {
-      die.traverse((o) => o.material && ((o.material.transparent = true), (o.material.opacity = 0.28)));
+      die.traverse((o) => o.material && ((o.material.transparent = true), (o.material.opacity = Math.min(o.material.opacity, 0.28))));
     }
     if (it.crit) {
       bodyMat.emissive.set(0x6b4a00);
@@ -429,7 +442,7 @@ export function mount(root) {
     const { THREE } = stage;
     lastResults = results;
     build3D(results);
-    meshes.forEach((m) => resetMark(m));
+    meshes.forEach((m) => (resetMark(m), highlightFace(m, null)));
     const box = stageEl.getBoundingClientRect();
     if (box.top < 70 || box.bottom > innerHeight - 70) stageEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     const plans = meshes.map((die, i) => {
@@ -461,6 +474,7 @@ export function mount(root) {
     for (const p of plans) {
       p.die.position.copy(p.to);
       p.die.rotation.copy(p.final);
+      highlightFace(p.die, p.die.userData.item.value);
       mark(p.die);
     }
     stage.render();
